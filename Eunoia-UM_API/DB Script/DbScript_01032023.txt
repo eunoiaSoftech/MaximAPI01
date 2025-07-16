@@ -1,0 +1,1177 @@
+﻿USE [db_Logistics]
+GO
+/****** Object:  Table [dbo].[ATTCHMENT]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ATTCHMENT](
+	[iPKID] [int] IDENTITY(1,1) NOT NULL,
+	[iTXNID] [int] NULL,
+	[sDocURL] [nvarchar](1000) NULL,
+	[sFormID] [int] NULL,
+	[iDoctypeID] [int] NULL,
+	[dtUploadedOn] [datetime] NULL,
+	[sUSRCode] [nvarchar](500) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CSTMENUM]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CSTMENUM](
+	[iPK_CustEnum] [int] IDENTITY(1,1) NOT NULL,
+	[iFK_EnumNo] [int] NULL,
+	[sName] [nvarchar](500) NULL,
+	[sCrtdBy] [nvarchar](10) NULL,
+	[dtCrtdDt] [datetime] NULL,
+	[sUpdtBy] [nvarchar](10) NULL,
+	[dtUpdtOn] [datetime] NULL,
+	[iIsActv] [int] NULL,
+	[iId] [int] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DPETMST]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DPETMST](
+	[iPK_DeptId] [bigint] IDENTITY(1,1) NOT NULL,
+	[sDeptName] [nvarchar](500) NULL,
+	[iFK_PartyId] [nvarchar](100) NULL,
+	[iStts] [int] NULL,
+	[dtCrtdDt] [datetime] NULL,
+	[sCrtdBy] [nvarchar](100) NULL,
+	[sUsrTyp] [nvarchar](50) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ENUMSTNG]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ENUMSTNG](
+	[iSttngId] [int] IDENTITY(1,1) NOT NULL,
+	[sName] [nvarchar](200) NULL,
+	[iIsActv] [int] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MENUMST]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MENUMST](
+	[iPK_MenuId] [int] IDENTITY(1,1) NOT NULL,
+	[sMenuName] [nvarchar](500) NULL,
+	[sCntrllrNm] [nvarchar](500) NULL,
+	[sActnMthd] [nvarchar](500) NULL,
+	[sPrntId] [int] NULL,
+	[sCrtdBy] [int] NULL,
+	[dtCrtdDt] [datetime] NULL,
+	[sUpdtBy] [int] NULL,
+	[dtUpdtOn] [datetime] NULL,
+	[iStatus] [int] NULL,
+	[iMenuOrdr] [int] NULL,
+	[sPrmssnApplyId] [nvarchar](50) NULL,
+	[btIsDsply] [bit] NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST_Order]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST_Order](
+	[iPk_ID] [int] IDENTITY(1,1) NOT NULL,
+	[sOrder_No] [nvarchar](1000) NULL,
+	[iOrderType] [int] NULL,
+	[sVehCat] [nvarchar](1000) NULL,
+	[dTotalOrderQty] [decimal](18, 2) NULL,
+	[dAllocateOrderQty] [decimal](18, 2) NULL,
+	[dBalanceQty] [decimal](18, 2) NULL,
+	[dtAllocation] [date] NULL,
+	[tmAllocation] [time](7) NULL,
+	[sCstCode] [nvarchar](1000) NULL,
+	[sCstName] [nvarchar](1000) NULL,
+	[sFromStationCode] [nvarchar](1000) NULL,
+	[sFromStationName] [nvarchar](1000) NULL,
+	[sToStationCode] [nvarchar](1000) NULL,
+	[sToStationName] [nvarchar](1000) NULL,
+	[sMaterialCode] [nvarchar](1000) NULL,
+	[sMaterialName] [nvarchar](1000) NULL,
+	[sPlant] [nvarchar](1000) NULL,
+	[sLot] [nvarchar](1000) NULL,
+	[sWaybillReq] [nvarchar](1000) NULL,
+	[sClrPriority] [nvarchar](1000) NULL,
+	[iFinyrID] [int] NULL,
+	[iBrnchID] [int] NULL,
+	[dtCrtdOn] [datetime] NULL,
+	[sCrtdBy] [nvarchar](1000) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MST_Veh]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MST_Veh](
+	[iPK_ID] [int] IDENTITY(1,1) NOT NULL,
+	[sUnqIdNo] [nvarchar](1000) NULL,
+	[sVehName] [nvarchar](1000) NULL,
+	[sVehImg] [varbinary](max) NULL,
+	[sLicePlate] [nvarchar](1000) NULL,
+	[sAstType] [nvarchar](1000) NULL,
+	[iVehType] [int] NULL,
+	[sYrOfMfg] [nvarchar](10) NULL,
+	[sVehStatus] [nvarchar](1000) NULL,
+	[iMaker] [int] NULL,
+	[iModel] [int] NULL,
+	[sTrim] [nvarchar](1000) NULL,
+	[sAssgnBrnch] [nvarchar](1000) NULL,
+	[sChassisNo] [nvarchar](1000) NULL,
+	[sOdoMtrVal] [nvarchar](1000) NULL,
+	[dtLastReadingAt] [datetime] NULL,
+	[sColor] [nvarchar](1000) NULL,
+	[iBdType] [int] NULL,
+	[sSubBdType] [nvarchar](1000) NULL,
+	[dLength] [decimal](18, 0) NULL,
+	[dHeight] [decimal](18, 0) NULL,
+	[dWidth] [decimal](18, 0) NULL,
+	[dGVW_RC] [nvarchar](1000) NULL,
+	[dGVW_Act] [decimal](18, 0) NULL,
+	[iGrossUOM] [int] NULL,
+	[dTareWt_RC] [decimal](18, 0) NULL,
+	[dTare_Act] [decimal](18, 0) NULL,
+	[iTareUOM] [int] NULL,
+	[iVehClass] [int] NULL,
+	[iTripExpCat] [int] NULL,
+	[iTrailerType] [int] NULL,
+	[dLoadCap] [decimal](18, 0) NULL,
+	[dEPA_City] [decimal](18, 0) NULL,
+	[dEPA_Highway] [decimal](18, 0) NULL,
+	[dEPA_Empty] [decimal](18, 0) NULL,
+	[sEngNo] [nvarchar](1000) NULL,
+	[sEngDesc] [nvarchar](1000) NULL,
+	[dMaxHP] [decimal](18, 0) NULL,
+	[iFuelType] [int] NULL,
+	[dFTnk1Cap] [decimal](18, 0) NULL,
+	[dFTnk2Cap] [decimal](18, 0) NULL,
+	[iIsDef] [bit] NULL,
+	[dDefCap] [decimal](18, 0) NULL,
+	[iPurVndr] [int] NULL,
+	[dPurPrice] [decimal](18, 0) NULL,
+	[dtPur] [datetime] NULL,
+	[iRegLctn] [int] NULL,
+	[iFinYr_id] [int] NULL,
+	[iBrnchID] [int] NULL,
+	[dtCrtdOn] [datetime] NULL,
+	[sCrtdBy] [nvarchar](1000) NULL,
+	[isActive] [bit] NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ROLEMST]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ROLEMST](
+	[iPk_RolId] [int] IDENTITY(1,1) NOT NULL,
+	[sRolName] [nvarchar](50) NULL,
+	[iStatus] [int] NULL,
+	[dtCrtdDt] [datetime] NULL,
+	[sCrtdByPrtyCode] [nvarchar](50) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[USRMST]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[USRMST](
+	[iPK_USRID] [int] IDENTITY(1,1) NOT NULL,
+	[sUSRCode] [nvarchar](1000) NULL,
+	[sPrntID] [nvarchar](500) NULL,
+	[sNME] [nvarchar](500) NULL,
+	[sSurNME] [nvarchar](500) NULL,
+	[sUSRNME] [nvarchar](500) NULL,
+	[iUsrTypeID] [int] NULL,
+	[dtDOB] [date] NULL,
+	[sEmail] [nvarchar](500) NULL,
+	[sPhone] [nvarchar](10) NULL,
+	[iCountryID] [int] NULL,
+	[iStateID] [int] NULL,
+	[iCityID] [int] NULL,
+	[sPincode] [nvarchar](6) NULL,
+	[sAadhaar] [nvarchar](12) NULL,
+	[sPan] [nvarchar](10) NULL,
+	[sAddress] [nvarchar](max) NULL,
+	[isGSTApplicable] [bit] NULL,
+	[GSTINNo] [nvarchar](50) NULL,
+	[iFinYrID] [int] NULL,
+	[iFK_brnchID] [int] NULL,
+	[iRoleID] [int] NULL,
+	[iDept] [int] NULL,
+	[iGrpID] [int] NULL,
+	[iEmailVarified] [bit] NULL,
+	[iMobileVarified] [bit] NULL,
+	[iFK_LicMstId] [nvarchar](500) NULL,
+	[bPassword] [nvarchar](500) NULL,
+	[sSalt] [nvarchar](1000) NULL,
+	[iIsactive] [bit] NULL,
+	[isTrial] [bit] NULL,
+	[sLatitude] [nvarchar](1000) NULL,
+	[sLongitude] [nvarchar](1000) NULL,
+	[sCrtedBy] [nvarchar](500) NULL,
+	[dtCrtedOn] [datetime] NULL,
+	[sUpdateBy] [nvarchar](500) NULL,
+	[dtUpdateOn] [datetime] NULL,
+ CONSTRAINT [PK_TBL_USRMST] PRIMARY KEY CLUSTERED 
+(
+	[iPK_USRID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+SET IDENTITY_INSERT [dbo].[CSTMENUM] ON 
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (1, 1, N'Company User', N'admin', CAST(N'2023-02-21T00:00:00.000' AS DateTime), NULL, NULL, 1, 1)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (7, 2, N'TRUCK', NULL, CAST(N'2023-02-26T17:15:34.973' AS DateTime), NULL, CAST(N'2023-02-26T17:19:58.990' AS DateTime), 1, 100)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (8, 2, N'TRAILER', NULL, CAST(N'2023-02-26T17:15:42.020' AS DateTime), NULL, CAST(N'2023-02-26T17:19:57.760' AS DateTime), 1, 101)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (9, 3, N'COLLAPSIBLE CONTAINER', NULL, CAST(N'2023-02-26T17:16:47.457' AS DateTime), NULL, CAST(N'2023-02-26T17:17:00.663' AS DateTime), 1, 200)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (10, 3, N'CONTAINER', NULL, CAST(N'2023-02-26T17:17:17.820' AS DateTime), NULL, CAST(N'2023-02-26T17:17:21.307' AS DateTime), 1, 201)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (11, 3, N'DALA', NULL, CAST(N'2023-02-26T17:17:26.240' AS DateTime), NULL, CAST(N'2023-02-26T17:17:36.320' AS DateTime), 1, 202)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (12, 3, N'HIGH BED', NULL, CAST(N'2023-02-26T17:17:36.550' AS DateTime), NULL, CAST(N'2023-02-26T17:17:42.117' AS DateTime), 1, 203)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (13, 3, N'SEMI BED', NULL, CAST(N'2023-02-26T17:17:49.127' AS DateTime), NULL, CAST(N'2023-02-26T17:17:52.710' AS DateTime), 1, 204)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (14, 4, N'1613 TRUCK-6 WHEELER', NULL, CAST(N'2023-02-26T17:20:50.560' AS DateTime), NULL, CAST(N'2023-02-26T17:21:06.960' AS DateTime), 1, 300)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (15, 4, N'2518 TRUCK-10 WHEELER', NULL, CAST(N'2023-02-26T17:21:07.190' AS DateTime), NULL, CAST(N'2023-02-26T17:21:17.240' AS DateTime), 1, 301)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (16, 4, N'3118 TRUCK-12 WHEELER', NULL, CAST(N'2023-02-26T17:21:17.470' AS DateTime), NULL, CAST(N'2023-02-26T17:21:31.800' AS DateTime), 1, 302)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (17, 4, N'3518 TC', NULL, CAST(N'2023-02-26T17:21:32.030' AS DateTime), NULL, CAST(N'2023-02-26T17:21:40.487' AS DateTime), 1, 303)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (18, 4, N'3718 TRUCK-14 WHEELER', NULL, CAST(N'2023-02-26T17:21:40.710' AS DateTime), NULL, CAST(N'2023-02-26T17:21:48.290' AS DateTime), 1, 304)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (19, 4, N'4018 TC', NULL, CAST(N'2023-02-26T17:21:48.513' AS DateTime), NULL, CAST(N'2023-02-26T17:21:57.730' AS DateTime), 1, 305)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (20, 4, N'4923 TC', NULL, CAST(N'2023-02-26T17:21:57.950' AS DateTime), NULL, CAST(N'2023-02-26T17:22:06.130' AS DateTime), 1, 306)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (21, 4, N'5523 TC', NULL, CAST(N'2023-02-26T17:22:06.347' AS DateTime), NULL, CAST(N'2023-02-26T17:22:14.347' AS DateTime), 1, 307)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (22, 4, N'5525 TC', NULL, CAST(N'2023-02-26T17:22:14.570' AS DateTime), NULL, CAST(N'2023-02-26T17:22:18.300' AS DateTime), 1, 308)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (23, 4, N'BIKE', NULL, CAST(N'2023-02-26T17:22:26.450' AS DateTime), NULL, CAST(N'2023-02-26T17:22:36.427' AS DateTime), 1, 309)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (24, 4, N'CAR', NULL, CAST(N'2023-02-26T17:22:36.657' AS DateTime), NULL, CAST(N'2023-02-26T17:22:40.070' AS DateTime), 1, 310)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (25, 5, N'ASHOK LEYLAND', NULL, CAST(N'2023-02-26T17:23:43.620' AS DateTime), NULL, CAST(N'2023-02-26T17:23:53.297' AS DateTime), 1, 400)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (26, 5, N'TATA MOTORS', NULL, CAST(N'2023-02-26T17:23:53.527' AS DateTime), NULL, CAST(N'2023-02-26T17:23:57.017' AS DateTime), 1, 401)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (27, 5, N'HONDA', NULL, CAST(N'2023-02-26T17:24:04.917' AS DateTime), NULL, CAST(N'2023-02-26T17:24:13.147' AS DateTime), 1, 402)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (28, 5, N'TVS', NULL, CAST(N'2023-02-26T17:24:13.370' AS DateTime), NULL, CAST(N'2023-02-26T17:24:21.490' AS DateTime), 1, 403)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (29, 5, N'YAMHA MOTOR INDIA PVT. LTD', NULL, CAST(N'2023-02-26T17:24:21.710' AS DateTime), NULL, CAST(N'2023-02-26T17:24:26.353' AS DateTime), 1, 404)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (30, 5, N'MAHINDRA ', NULL, CAST(N'2023-02-26T17:24:41.067' AS DateTime), NULL, CAST(N'2023-02-26T17:24:51.093' AS DateTime), 1, 405)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (31, 6, N'CNG', NULL, CAST(N'2023-02-26T17:25:30.443' AS DateTime), NULL, CAST(N'2023-02-26T17:25:35.667' AS DateTime), 1, 500)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (32, 6, N'DIESEL', NULL, CAST(N'2023-02-26T17:25:35.897' AS DateTime), NULL, CAST(N'2023-02-26T17:26:08.317' AS DateTime), 1, 501)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (33, 6, N'PETROL', NULL, CAST(N'2023-02-26T17:25:51.447' AS DateTime), NULL, CAST(N'2023-02-26T17:26:04.100' AS DateTime), 1, 502)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (34, 7, N'HEAVY COMMERCIAL VEHICLE', NULL, CAST(N'2023-02-26T18:06:05.737' AS DateTime), NULL, CAST(N'2023-02-26T18:06:16.017' AS DateTime), 1, 600)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (35, 7, N'MEDIUM COMMERCIAL VEHICLE', NULL, CAST(N'2023-02-26T18:06:16.237' AS DateTime), NULL, CAST(N'2023-02-26T18:06:26.250' AS DateTime), 1, 601)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (37, 7, N'MOTOR CYCLE', NULL, CAST(N'2023-02-26T18:06:36.480' AS DateTime), NULL, CAST(N'2023-02-26T18:06:45.133' AS DateTime), 1, 603)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (38, 7, N'MOTOR CAR', NULL, CAST(N'2023-02-26T18:06:45.347' AS DateTime), NULL, CAST(N'2023-02-26T18:06:54.407' AS DateTime), 1, 604)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (39, 7, N'TWO WHEELER', NULL, CAST(N'2023-02-26T18:06:54.623' AS DateTime), NULL, CAST(N'2023-02-26T18:06:57.990' AS DateTime), 1, 605)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (40, 8, N'3118 Truck', NULL, CAST(N'2023-02-26T18:26:32.640' AS DateTime), NULL, CAST(N'2023-02-26T18:26:36.083' AS DateTime), 1, 700)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (41, 8, N'3518 Trailer', NULL, CAST(N'2023-02-26T18:26:43.473' AS DateTime), NULL, CAST(N'2023-02-26T18:26:52.343' AS DateTime), 1, 701)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (42, 8, N'4018 Trailer', NULL, CAST(N'2023-02-26T18:26:52.567' AS DateTime), NULL, CAST(N'2023-02-26T18:26:56.043' AS DateTime), 1, 702)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (43, 9, N'Truck', NULL, CAST(N'2023-02-26T18:27:23.620' AS DateTime), NULL, CAST(N'2023-02-26T18:27:35.447' AS DateTime), 1, 800)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (44, 9, N'Trailer', NULL, CAST(N'2023-02-26T18:27:36.913' AS DateTime), NULL, CAST(N'2023-02-26T18:27:47.830' AS DateTime), 1, 801)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (45, 9, N'Crane', NULL, CAST(N'2023-02-26T18:27:48.067' AS DateTime), NULL, CAST(N'2023-02-26T18:27:51.317' AS DateTime), 1, 802)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (46, 10, N'NOS', NULL, CAST(N'2023-02-26T18:29:28.847' AS DateTime), NULL, CAST(N'2023-02-26T18:29:36.673' AS DateTime), 1, 900)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (47, 10, N'KG', NULL, CAST(N'2023-02-26T18:29:36.900' AS DateTime), NULL, CAST(N'2023-02-26T18:29:47.013' AS DateTime), 1, 901)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (48, 10, N'MT', NULL, CAST(N'2023-02-26T18:29:47.240' AS DateTime), NULL, CAST(N'2023-02-26T18:29:59.917' AS DateTime), 1, 902)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (49, 10, N'KM/LTR', NULL, CAST(N'2023-02-26T18:30:00.143' AS DateTime), NULL, CAST(N'2023-02-26T18:30:03.363' AS DateTime), 1, 903)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (73, 12, N'HR COIL', NULL, CAST(N'2023-03-01T18:33:14.280' AS DateTime), NULL, CAST(N'2023-03-01T18:33:20.737' AS DateTime), 1, 1100)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (74, 12, N'SHEET', NULL, CAST(N'2023-03-01T18:33:27.750' AS DateTime), NULL, CAST(N'2023-03-01T18:33:36.287' AS DateTime), 1, 1101)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (36, 7, N'LIGHT COMMERCIAL VEHICLE', NULL, CAST(N'2023-02-26T18:06:26.480' AS DateTime), NULL, CAST(N'2023-02-26T18:06:36.257' AS DateTime), 1, 602)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (70, 2, N'BIKE', NULL, CAST(N'2023-03-01T16:24:44.840' AS DateTime), NULL, NULL, 1, 102)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (71, 11, N'RETURN LOAD', NULL, CAST(N'2023-03-01T18:22:51.397' AS DateTime), NULL, CAST(N'2023-03-01T18:23:03.233' AS DateTime), 1, 1000)
+GO
+INSERT [dbo].[CSTMENUM] ([iPK_CustEnum], [iFK_EnumNo], [sName], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iIsActv], [iId]) VALUES (72, 11, N'DIRECT ORDER', NULL, CAST(N'2023-03-01T18:23:03.430' AS DateTime), NULL, CAST(N'2023-03-01T18:23:14.047' AS DateTime), 1, 1001)
+GO
+SET IDENTITY_INSERT [dbo].[CSTMENUM] OFF
+GO
+SET IDENTITY_INSERT [dbo].[DPETMST] ON 
+GO
+INSERT [dbo].[DPETMST] ([iPK_DeptId], [sDeptName], [iFK_PartyId], [iStts], [dtCrtdDt], [sCrtdBy], [sUsrTyp]) VALUES (1, N'CA', N'', 1, CAST(N'2023-01-02T21:53:11.200' AS DateTime), N'', NULL)
+GO
+INSERT [dbo].[DPETMST] ([iPK_DeptId], [sDeptName], [iFK_PartyId], [iStts], [dtCrtdDt], [sCrtdBy], [sUsrTyp]) VALUES (2, N'Admin', N'', 1, CAST(N'2023-01-02T21:53:17.587' AS DateTime), N'', NULL)
+GO
+SET IDENTITY_INSERT [dbo].[DPETMST] OFF
+GO
+SET IDENTITY_INSERT [dbo].[ENUMSTNG] ON 
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (1, N'Company User Type', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (2, N'Vehicle Type', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (3, N'Vehicle Body Type', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (4, N'Vehicle Model', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (5, N'Vehicle Maker', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (6, N'Fuel Type', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (7, N'Vehicle Class', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (8, N'Trip Expense Category', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (9, N'Trailer Type', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (10, N'UOM', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (12, N'Material', 1)
+GO
+INSERT [dbo].[ENUMSTNG] ([iSttngId], [sName], [iIsActv]) VALUES (11, N'Trip Type', 1)
+GO
+SET IDENTITY_INSERT [dbo].[ENUMSTNG] OFF
+GO
+SET IDENTITY_INSERT [dbo].[MENUMST] ON 
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (1, N'Life Insurance', N'', N'', NULL, NULL, CAST(N'2022-12-11T18:14:38.933' AS DateTime), NULL, NULL, 1, NULL, NULL, NULL)
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (2, N'Genaral Insurance', N'', N'', NULL, NULL, CAST(N'2022-12-11T18:14:59.017' AS DateTime), NULL, NULL, 1, NULL, NULL, NULL)
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (3, N'Health Insurance', N'', N'', NULL, NULL, CAST(N'2022-12-11T18:15:09.943' AS DateTime), NULL, NULL, 1, NULL, NULL, NULL)
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (4, N'Motor Insurance', N'', N'', NULL, NULL, CAST(N'2022-12-11T18:15:36.837' AS DateTime), NULL, NULL, 1, NULL, NULL, NULL)
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (5, N'Marine', N'#', N'#', NULL, NULL, CAST(N'2022-12-30T20:46:26.253' AS DateTime), NULL, NULL, 1, NULL, NULL, NULL)
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (6, N'Package Cofiguration', N'#', N'#', NULL, NULL, CAST(N'2023-01-02T23:43:56.333' AS DateTime), NULL, NULL, 1, NULL, NULL, NULL)
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (7, N'Approval', N'#', N'#', NULL, NULL, CAST(N'2023-01-02T23:49:05.347' AS DateTime), NULL, NULL, 1, NULL, NULL, NULL)
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (8, N'MyProfile', N'#', N'#', NULL, NULL, CAST(N'2023-01-02T23:49:05.347' AS DateTime), NULL, NULL, 1, NULL, NULL, NULL)
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (9, N'Test123', N'', N'', NULL, NULL, CAST(N'2023-01-11T18:11:24.597' AS DateTime), NULL, NULL, 2, NULL, NULL, NULL)
+GO
+INSERT [dbo].[MENUMST] ([iPK_MenuId], [sMenuName], [sCntrllrNm], [sActnMthd], [sPrntId], [sCrtdBy], [dtCrtdDt], [sUpdtBy], [dtUpdtOn], [iStatus], [iMenuOrdr], [sPrmssnApplyId], [btIsDsply]) VALUES (10, N'Packcreation', N'na', N'na', NULL, NULL, CAST(N'2023-01-13T21:49:40.530' AS DateTime), NULL, NULL, 1, NULL, NULL, NULL)
+GO
+SET IDENTITY_INSERT [dbo].[MENUMST] OFF
+GO
+SET IDENTITY_INSERT [dbo].[MST_Veh] ON 
+GO
+INSERT [dbo].[MST_Veh] ([iPK_ID], [sUnqIdNo], [sVehName], [sVehImg], [sLicePlate], [sAstType], [iVehType], [sYrOfMfg], [sVehStatus], [iMaker], [iModel], [sTrim], [sAssgnBrnch], [sChassisNo], [sOdoMtrVal], [dtLastReadingAt], [sColor], [iBdType], [sSubBdType], [dLength], [dHeight], [dWidth], [dGVW_RC], [dGVW_Act], [iGrossUOM], [dTareWt_RC], [dTare_Act], [iTareUOM], [iVehClass], [iTripExpCat], [iTrailerType], [dLoadCap], [dEPA_City], [dEPA_Highway], [dEPA_Empty], [sEngNo], [sEngDesc], [dMaxHP], [iFuelType], [dFTnk1Cap], [dFTnk2Cap], [iIsDef], [dDefCap], [iPurVndr], [dPurPrice], [dtPur], [iRegLctn], [iFinYr_id], [iBrnchID], [dtCrtdOn], [sCrtdBy], [isActive]) VALUES (2, N'MP04ZB1558', NULL, 0x, NULL, NULL, 8, N'2023', N'new', 29, 21, NULL, NULL, N'4536456', NULL, NULL, NULL, 11, N'343534', CAST(343534 AS Decimal(18, 0)), CAST(343534 AS Decimal(18, 0)), CAST(343534 AS Decimal(18, 0)), N'343534.00', CAST(343534 AS Decimal(18, 0)), 48, CAST(343534 AS Decimal(18, 0)), CAST(343534 AS Decimal(18, 0)), 48, 37, 41, 44, CAST(343534 AS Decimal(18, 0)), CAST(343534 AS Decimal(18, 0)), CAST(343534 AS Decimal(18, 0)), NULL, N'343534', N'21e2', CAST(343534 AS Decimal(18, 0)), 32, CAST(343534 AS Decimal(18, 0)), CAST(343534 AS Decimal(18, 0)), 0, CAST(0 AS Decimal(18, 0)), 1, CAST(343534 AS Decimal(18, 0)), CAST(N'2023-03-01T00:00:00.000' AS DateTime), 1011, NULL, NULL, CAST(N'2023-03-01T16:50:25.223' AS DateTime), N'admin', 1)
+GO
+SET IDENTITY_INSERT [dbo].[MST_Veh] OFF
+GO
+SET IDENTITY_INSERT [dbo].[ROLEMST] ON 
+GO
+INSERT [dbo].[ROLEMST] ([iPk_RolId], [sRolName], [iStatus], [dtCrtdDt], [sCrtdByPrtyCode]) VALUES (1, N'Trial User', 1, CAST(N'2023-01-01T17:10:11.410' AS DateTime), N'')
+GO
+INSERT [dbo].[ROLEMST] ([iPk_RolId], [sRolName], [iStatus], [dtCrtdDt], [sCrtdByPrtyCode]) VALUES (2, N'Accountant', 1, CAST(N'2023-01-02T21:50:45.837' AS DateTime), N'')
+GO
+INSERT [dbo].[ROLEMST] ([iPk_RolId], [sRolName], [iStatus], [dtCrtdDt], [sCrtdByPrtyCode]) VALUES (3, N'Report', 1, CAST(N'2023-01-02T21:50:59.993' AS DateTime), N'')
+GO
+INSERT [dbo].[ROLEMST] ([iPk_RolId], [sRolName], [iStatus], [dtCrtdDt], [sCrtdByPrtyCode]) VALUES (4, N'User', 1, CAST(N'2023-01-02T21:51:09.407' AS DateTime), N'')
+GO
+INSERT [dbo].[ROLEMST] ([iPk_RolId], [sRolName], [iStatus], [dtCrtdDt], [sCrtdByPrtyCode]) VALUES (5, N'Approver', 1, CAST(N'2023-01-02T23:53:17.697' AS DateTime), N'')
+GO
+INSERT [dbo].[ROLEMST] ([iPk_RolId], [sRolName], [iStatus], [dtCrtdDt], [sCrtdByPrtyCode]) VALUES (6, N'Manager', 1, CAST(N'2023-01-02T23:53:37.377' AS DateTime), N'')
+GO
+INSERT [dbo].[ROLEMST] ([iPk_RolId], [sRolName], [iStatus], [dtCrtdDt], [sCrtdByPrtyCode]) VALUES (7, N'Admin', 1, CAST(N'2023-01-02T23:53:37.377' AS DateTime), NULL)
+GO
+SET IDENTITY_INSERT [dbo].[ROLEMST] OFF
+GO
+SET IDENTITY_INSERT [dbo].[USRMST] ON 
+GO
+INSERT [dbo].[USRMST] ([iPK_USRID], [sUSRCode], [sPrntID], [sNME], [sSurNME], [sUSRNME], [iUsrTypeID], [dtDOB], [sEmail], [sPhone], [iCountryID], [iStateID], [iCityID], [sPincode], [sAadhaar], [sPan], [sAddress], [isGSTApplicable], [GSTINNo], [iFinYrID], [iFK_brnchID], [iRoleID], [iDept], [iGrpID], [iEmailVarified], [iMobileVarified], [iFK_LicMstId], [bPassword], [sSalt], [iIsactive], [isTrial], [sLatitude], [sLongitude], [sCrtedBy], [dtCrtedOn], [sUpdateBy], [dtUpdateOn]) VALUES (1, N'U000003', N'A000001', N'vivek', NULL, N'vivek@mail.com', 3026, NULL, N'vivek@mail.com', N'9787888888', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4, 1, NULL, NULL, NULL, NULL, N'GGql2fNet+76r37u9QqhpS71j4fliMEMaqHyAEqETPM=', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+GO
+SET IDENTITY_INSERT [dbo].[USRMST] OFF
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_AddVehicleMaster_Insert]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author: <Vivek Choudhary>
+-- Create date: <22.Sep.2022>
+-- Description:	<This Procedure is used to add vehicle in MST_Veh table>
+-- =============================================
+
+CREATE Procedure [dbo].[USP_ADMIN_AddVehicleMaster_Insert]
+@sUnqIdNo nvarchar(1000) = null
+,@sVehImg  nvarchar(max) = null
+,@iVehType int = null
+,@sYrOfMfg nvarchar(1000) = null
+,@sVehStatus nvarchar(1000) = null
+,@iMaker int = null
+,@iModel int = null
+,@sChassisNo nvarchar(1000) = null
+,@iBdType int = null
+,@sSubBdType nvarchar(1000) = null
+,@dLength decimal(18,2) = null
+,@dHeight decimal(18,2) = null
+,@dWidth decimal(18,2) = null
+,@dGVW_RC decimal(18,2) = null
+,@dGVW_Act decimal(18,2) = null
+,@iGrossUOM int =null
+,@dTareWt_RC decimal(18,2) = null
+,@dTare_Act decimal(18,2) = null
+,@iTareUOM int = null
+,@iVehClass int = null
+,@iTripExpCat int = null
+,@iTrailerType int = null
+,@dLoadCap decimal(18,2)= null
+,@dEPA_City decimal(18,2) = null
+,@dEPA_Highway decimal(18,2) = null
+,@dEPA_Empty decimal(18,2) = null
+,@sEngNo nvarchar(1000) = null
+,@sEngDesc nvarchar(1000) = null
+,@dMaxHP decimal(18,2) = null
+,@iFuelType int = null
+,@dFTnk1Cap decimal(18,2) = null
+,@dFTnk2Cap decimal(18,2) = null
+,@iIsDef int = null
+,@dDefCap decimal(18,2)= null
+,@iPurVndr int = null
+,@dPurPrice decimal(18,2)= null
+,@dtPur nvarchar(1000) = null
+,@iRegLctn int = null
+as
+begin
+	insert into MST_Veh (sUnqIdNo,sVehImg,iVehType,sYrOfMfg,sVehStatus,iMaker,iModel,sChassisNo,iBdType,sSubBdType,dLength,dHeight,dWidth,dGVW_RC,dGVW_Act,iGrossUOM,dTareWt_RC,dTare_Act,iTareUOM,iVehClass,iTripExpCat,iTrailerType,dLoadCap,dEPA_City
+						,dEPA_Highway,sEngNo,sEngDesc,dMaxHP,iFuelType,dFTnk1Cap,dFTnk2Cap,iIsDef,dDefCap,iPurVndr,dPurPrice,dtPur,iRegLctn,dtCrtdOn,sCrtdBy,isActive)
+	values (@sUnqIdNo,cast(@sVehImg as varbinary(max)),@iVehType,@sYrOfMfg,@sVehStatus,@iMaker,@iModel,@sChassisNo,@iBdType,@sSubBdType,@dLength,@dHeight,@dWidth,@dGVW_RC,@dGVW_Act,@iGrossUOM,@dTareWt_RC,@dTare_Act,@iTareUOM,@iVehClass,@iTripExpCat,@iTrailerType,@dLoadCap,@dEPA_City
+					,@dEPA_Highway,@sEngNo,@sEngDesc,@dMaxHP,@iFuelType,@dFTnk1Cap,@dFTnk2Cap,@iIsDef,@dDefCap,@iPurVndr,@dPurPrice,cast(@dtPur as datetime),@iRegLctn,getdate(),'admin',1)
+
+	select 1 as StatusCode , 'Details Saved Successfully...' as [Message]	
+end
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_CustomFieldEnumSetting_View]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <22.Sep.2022>
+-- Description:	<This sp is used to show enum custom field settings>
+-- =============================================
+
+Create Procedure [dbo].[USP_ADMIN_CustomFieldEnumSetting_View]
+AS
+   Begin
+     Select * from ENUMSTNG where iIsActv=1
+	 order by sName 
+   End
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_CustomFields_View]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Abhishek Rohilla>
+-- Create date: <22.Sep.2022>
+-- Description:	<This SP is used to custom field in customer enum form
+-- =============================================
+CREATE Procedure [dbo].[USP_ADMIN_CustomFields_View]
+AS
+Begin
+Select C.iPK_CustEnum,C.iFK_EnumNo,C.sName,C.iId,IsNull(C.iIsActv,1) Active from CSTMENUM C 
+order by C.sName
+End
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_CustomFieldSetting_View]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ --========================================================================
+ --Author:<Vivek Choudhary>
+ --Create Date:<26.Sep.2022>
+ --Description:<This procedure is used show Enum setting>
+ --======================================================================
+Create Procedure [dbo].[USP_ADMIN_CustomFieldSetting_View]
+@Id bigint = null
+as
+begin
+	select iSttngId as Id,sName as SettingName,isnull(iIsActv,0) as IsActive from ENUMSTNG 
+	where (iSttngId=nullif(@Id,0) or nullif(@Id,0) is null)
+end
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_GetMasterDataForDropdown_View]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: <Vivek Choudhary>
+-- Create date: <22.Sep.2022>
+-- Description:	<This Procedure is used to get masters data for dropdown and for binding grid on master index pages ex: notification config master, group master, wallet amount etc>
+-- =============================================
+
+CREATE Procedure [dbo].[USP_ADMIN_GetMasterDataForDropdown_View] --'Add Vehicle Type','tes1t',null
+
+@type nvarchar(100) = null,
+@EnumName nvarchar(max) = null,
+@ExtraId nvarchar(max)=null
+as
+
+declare @EnumID int,@newid int
+set @EnumID = (select iSttngId from ENUMSTNG where sName like '%'+@type+'%')
+if(@type='Vehicle Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type ='Vehicle Body Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Vehicle Model')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type ='Vehicle Maker')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Fuel Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Vehicle Class')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Trip Expense Category')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Trailer Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='UOM')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1
+	end
+--------------------------------------------------For Add Enum From Vehicle Master Page----------------------------------------------------------------
+if((@type='Add Vehicle Type') or (@type='Add Vehicle Body Type') or (@type='Add Vehicle Model') or (@type='Add Vehicle Maker') or (@type='Add Fuel Type') or (@type='Add Vehicle Class') or (@type='Add Trip Expense Category') or (@type='Add Trailer Type'))
+	begin
+		select @ExtraId=isnull(max(iId),0),@newid= max(iFK_EnumNo) from CSTMENUM where iFK_EnumNo = (select iSttngId from ENUMSTNG where sName =REPLACE(@type,'Add ',''))
+		
+			if(@ExtraId=0)
+				Begin
+					Set @ExtraId=(@EnumID-1)*100;
+				End
+			else
+				Begin
+					Set @ExtraId=@ExtraId+1;
+				End
+			insert CSTMENUM (iFK_EnumNo,sName,dtCrtdDt,iId,iIsActv)
+			values(@newid,Upper(@EnumName),GETDATE(),@ExtraId,1)
+			select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1 from CSTMENUM where iFK_EnumNo=@newid
+			order by ID1 desc
+	end
+--------------------------------------------------For Add Enum From Vehicle Master Page----------------------------------------------------------------
+if(@type='VehExistsOrNot')
+	begin
+		if exists(select * from MST_Veh where sUnqIdNo=@EnumName)
+			begin
+				select 1 as Id,'Already Exists' as [Text]
+			end
+		else
+			begin
+				select 0 as Id,'Not Exists' as [Text]
+			end
+	end
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_GetMasterDataForTable_View]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: <Vivek Choudhary>
+-- Create date: <22.Sep.2022>
+-- Description:	<This Procedure is used to get Table Data to display>
+-- =============================================
+
+CREATE Procedure [dbo].[USP_ADMIN_GetMasterDataForTable_View] --'Vehicle master',null,null
+
+@type nvarchar(100) = null,
+@EnumName nvarchar(max) = null,
+@ExtraId nvarchar(max)=null
+as
+begin
+	if(@type = 'Vehicle master')
+		begin
+			select 
+				sUnqIdNo,
+				cast(sVehImg as nvarchar(max)) sVehImg,
+				iVehType,
+				vehType.sName as VehTypeNamw,
+				isActive,
+				0 as sOdoMtrVal,
+				'' as dtLastReadingAt
+			from MST_Veh veh
+			inner join CSTMENUM vehType on vehType.iPK_CustEnum = veh.iVehType
+			
+			order by dtCrtdOn desc
+		end
+end
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_NewFieldinEnum_SaveUpdateDelete]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <22.Sep.2022>
+-- Description:	<This sp is used to add a new enum under any setting>
+-- =============================================
+CREATE Procedure [dbo].[USP_ADMIN_NewFieldinEnum_SaveUpdateDelete]
+(
+@EnumNo int,
+@Type int
+)
+AS
+Begin 
+	if(@Type=1)
+		Begin
+			declare @Id int
+			select @Id=isnull(max(iId),0) from CSTMENUM where iFK_EnumNo=@EnumNo
+			if(@Id=0)
+				Begin
+					Set @Id=(@EnumNo-1)*100;
+				End
+			else
+				Begin
+					Set @Id=@Id+1;
+				End
+			--print (@Id)
+			insert CSTMENUM (iFK_EnumNo,dtCrtdDt,iId,iIsActv)
+			values(@EnumNo,GETDATE(),@Id,1)
+			select * from CSTMENUM where iFK_EnumNo=@EnumNo and iId=@Id
+		End
+	else
+		If(@Type=2)
+			Begin
+				delete CSTMENUM where iPK_CustEnum=@EnumNo
+				select 1 StatusCode
+			End
+		else
+			Begin
+				Update CSTMENUM set iIsActv=0 where  iPK_CustEnum=@EnumNo
+				select 1 StatusCode
+			End
+End
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_UserDetails_select]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Vivek Choudhary>
+-- Create date: <06.Dec.2022>
+-- Description:	<This SP is used to get User details
+-- =============================================
+Create procedure [dbo].[USP_ADMIN_UserDetails_select] --'U000002'
+@UserID nvarchar(500)= null
+as
+begin
+	select 
+USRMST.sUSRCode
+,isnull(sPrntID,'NA') sPrntID
+,concat(isnull(sNME,''),' ',isnull(sSurNME,'')) as [sNME]
+,sSurNME
+,case when sUSRNME = '' then sEmail else  sUSRNME end as sUSRNME
+,iUsrTypeID
+,usrtype.sName as UserType
+,format(dtDOB,'yyyy-MM-dd') as dtDOB
+,sEmail
+,sPhone
+,iCountryID
+--,contry.sContryName
+,USRMST.iStateID
+--,stat.sStateName
+,USRMST.iCityID
+--,ct.sCityName
+,sPincode
+,sAadhaar
+,sPan
+,sAddress
+,isGSTApplicable
+,GSTINNo
+,iRoleID
+,isnull(rol.sRolName,'-') as [Role]
+,case when concat(isnull(USRMST.sLatitude,''),'-',isnull(USRMST.sLongitude,''))='-' then 'NA' else concat(isnull(USRMST.sLatitude,''),'-',isnull(USRMST.sLongitude,'')) end as [location]
+,sCrtedBy
+,format(dtCrtedOn,'dd-MMM-yyyy hh:mm:ss tt') as dtCrtedOn 
+,sUpdateBy
+,dtUpdateOn
+,iDept
+,(select Count(*) from USRMST where USRMST.sPrntID = @UserID) as Members
+,aadhar.sDocURL as s_aadhaarImg
+,pan.sDocURL as s_panImg
+,profileImage.sDocURL as s_profileImg
+from USRMST
+left join CSTMENUM usrtype on usrtype.iPK_CustEnum = USRMST.iUsrTypeID
+left join ROLEMST rol on rol.iPk_RolId = USRMST.iRoleID
+--left join CONTRYMST contry on contry.iContryID =  USRMST.iCountryID
+--left join STATEMST stat on stat.iStateID =  USRMST.iStateID
+--left join CITYMST ct on ct.iCityID =  USRMST.iCityID
+left join ATTCHMENT aadhar on aadhar.sUSRCode = USRMST.sUSRCode and aadhar.iDoctypeID=6
+left join ATTCHMENT pan on pan.sUSRCode = USRMST.sUSRCode and pan.iDoctypeID=7
+left join ATTCHMENT profileImage on profileImage.sUSRCode = USRMST.sUSRCode and profileImage.iDoctypeID=8
+where USRMST.sUSRCode = @UserID
+end
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_UserMaster_Save]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: <Vivek Choudhary>
+-- Create date: <27.Nov.2022>
+-- Description:	<This procedure is used for saving the data to usermaster>
+-- =============================================
+Create Procedure [dbo].[USP_ADMIN_UserMaster_Save] 
+@type nvarchar(100) = null--'Member' --'User'
+,@parentId nvarchar(100) =null
+,@Name nvarchar(1000) = null
+,@surName nvarchar(1000) = null
+,@userName nvarchar(1000) = null
+,@DOB nvarchar(10) = null
+,@email nvarchar(100) = null
+,@phone nvarchar(10) = null
+,@countryID int = null
+,@stateID int = null
+,@cityID int = null
+,@pincode nvarchar(10) = null
+,@Aadhaar nvarchar(12) = null
+,@Pan nvarchar(10) = null
+,@address nvarchar(1000) = null
+,@Pass nvarchar(max) = null
+,@lat nvarchar(max) = null
+,@long nvarchar(max) = null
+,@roleID int = null
+,@userID nvarchar(50) = null
+as
+begin
+	declare 
+	@usercode nvarchar(100) 
+
+	set @usercode='U'+ convert(nvarchar(100),(SELECT FORMAT(isnull(max(iPK_USRID),0)+1,'000000') from [db_Logistics].[dbo].[USRMST]),103)
+
+	if(@type = 'Member')
+		begin
+			if exists(select * from [db_Logistics].[dbo].[USRMST] where [sNME] = @Name and sEmail=@email)
+				begin
+					select 0 as StatusCode , 'User Details Already exists...' as [Message]	
+				end
+			else
+				begin
+				declare @userType int =(select top 1 iUsrTypeID from USRMST where sUSRCode=@parentId)
+					insert into [db_Logistics].[dbo].[USRMST] (
+					 [sUSRCode]
+					,[sPrntID]
+					,[sNME]
+					,[sSurNME]
+					,[sUSRNME]
+					,[dtDOB]
+					,[sEmail]
+					,[sPhone]
+					,[iCountryID]
+					,[iStateID]
+					,[iCityID]
+					,[sPincode]
+					,[sAadhaar]
+					,[sPan]
+					,[sAddress]
+					,[iIsactive]
+					,[sLatitude]
+					,[sLongitude]
+					,[iRoleID]
+					,[sCrtedBy]
+					,[dtCrtedOn]
+					,[bPassword]
+					,[iUsrTypeID]
+					)
+					values
+					(@usercode
+					,@parentId
+					,@Name
+					,@surName
+					,@userName
+					,convert(date,@DOB,103)
+					,@email
+					,@phone
+					,@countryID
+					,@stateID
+					,@cityID
+					,@pincode
+					,@Aadhaar
+					,@Pan
+					,@address
+					,1
+					,@lat
+					,@long
+					,@roleID
+					,@parentId
+					,getdate()
+					,@Pass
+					,@userType
+
+					)
+					--exec USP_MASTER_CreatePassword_Update @usercode,@Pass
+					select 1 as StatusCode , 'Member Details Saved Successfully...' as [Message],@usercode as userCode
+				end
+		end
+	if(@type = 'User')
+		begin
+			update [db_Logistics].[dbo].[USRMST] 
+			set [sNME] = @Name
+					,[sSurNME] =@surName
+					,[sUSRNME] =@userName
+					,[dtDOB] =convert(date,@DOB,103)
+					,[sEmail] =@email
+					,[sPhone] = @phone
+					,[iCountryID] = @countryID
+					,[iStateID] =@stateID
+					,[iCityID]=@cityID
+					,[sPincode]=@pincode
+					,[sAadhaar]=@Aadhaar
+					,[sPan]=@Pan
+					,[sAddress]=@address
+					,[dtUpdateOn] =GETDATE()
+					
+					where sUSRCode = @userID
+			select 1 as StatusCode , 'User Details Saved Successfully...' as [Message] ,@usercode as userCode
+		end
+end
+	
+GO
+/****** Object:  StoredProcedure [dbo].[USP_MASTER_ChangeEnumStatus_Update]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		<Vivek Choudhary>
+-- Create date: <05.Dec.2022>
+-- Description:	<This SP is used to Update the Status of user
+-- =============================================
+CREATE procedure [dbo].[USP_MASTER_ChangeEnumStatus_Update]
+@status int = null,
+@userID nvarchar(300) = null
+as
+begin
+update ENUMSTNG set iIsActv= @status where iSttngId = @userID
+select 1 as StatusCode , 'Details Updated Successfully..!' as [Message] 
+end
+GO
+/****** Object:  StoredProcedure [dbo].[USP_MASTER_DocumentUpload_Save]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: <Vivek Chaudhary>
+-- Create date: <22.Sep.2022>
+-- Description:	<This sp is used to save user uploaded document>
+-- =============================================
+Create Procedure [dbo].[USP_MASTER_DocumentUpload_Save]
+
+@PartyId nvarchar(500) = null,
+@UploadDocumentUrl nvarchar(1000) =null,
+@DocumentType nvarchar(500) = null,
+@formName nvarchar(500) = null
+
+as
+begin
+	declare @documentID int,@formID int
+	select @documentID = iPK_CustEnum from CSTMENUM where (sName = @DocumentType or cast(iPK_CustEnum as nvarchar) = @DocumentType)
+	select @formID=iPK_MenuId from MENUMST where sMenuName=@formName
+	
+	if exists(select * from ATTCHMENT where sUSRCode = @PartyId and iDoctypeID  = @documentID)
+		begin
+			update ATTCHMENT set dtUploadedOn =GETDATE(),sDocURL=@UploadDocumentUrl
+			where sUSRCode =@PartyId and iDoctypeID =@documentID
+			select 1 as StatusCode , 'Document Uploaded Successfully!' as [Message]
+		end
+	else
+		begin
+			insert into ATTCHMENT(sUSRCode,sDocURL,dtUploadedOn,iDoctypeID,sFormID)
+			values(@PartyId,@UploadDocumentUrl,getdate(),@documentID,@formID)
+			select 1 as StatusCode , 'Document Uploaded Successfully!' as [Message]
+		end
+end
+GO
+/****** Object:  StoredProcedure [dbo].[USP_MASTER_ManageMainSetting_Update]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+Create Procedure [dbo].[USP_MASTER_ManageMainSetting_Update] 
+@id int = null,
+@name nvarchar(500)= null,
+@status int = null,
+@type nvarchar(40) = null
+as
+begin
+	declare @isExists int
+	select @isExists = count(sName) from ENUMSTNG where sName = @name and iIsActv= @status
+	if(@type = 'Edit')
+		begin
+			if(@isExists = 1)
+				begin
+					select 1 as StatusCode , 'Details Already Exists, Not Update...' as [Message]
+				end
+			else
+				begin
+					update ENUMSTNG set sName = @name, iIsActv=@status where iSttngId = @id
+					select 1 as StatusCode , 'Details Updated Successfully' as [Message]
+				end
+		end
+
+	if(@type  = 'Delete')
+		begin	
+			update ENUMSTNG set iIsActv=0 where iSttngId = @id
+			select 1 as StatusCode , 'Details Deleted Successfully' as [Message]
+		end
+
+	if(@type = 'Add')
+		begin
+			if(@isExists = 1)
+				begin
+				select 1 as StatusCode , 'Details Already Exists, Not Saved...' as [Message]
+				end
+			else
+				begin
+					insert into ENUMSTNG(sName,iIsActv) values(@name,@status)
+					select 1 as StatusCode , 'Details Added Successfully' as [Message]
+				end
+		end
+
+	if(@type  = 'Search')
+		begin	
+			select iSttngId as Id,sName as SettingName,isnull(iIsActv,0) as IsActive from ENUMSTNG where sName like '%'+ @name+'%'
+			select 1 as StatusCode , 'Details Fatched Successfully' as [Message]
+		end
+end
+GO
+/****** Object:  StoredProcedure [dbo].[USP_MASTER_SystemUser_Save]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE Procedure [dbo].[USP_MASTER_SystemUser_Save]
+@FirstName nvarchar(200) = null,
+@MobileNumber nvarchar(10),
+@EmailId nvarchar(200)=null,
+@Password nvarchar(max)= null,
+@roleId nvarchar(10) = null,
+@userName nvarchar(100) = null,
+@userCode nvarchar(100) = null,
+@Type int=0
+as
+Begin
+declare @PartyId nvarchar(500),
+@roleName nvarchar(300),
+@usertypeID int 
+if exists(select * from USRMST where sUSRCode = @userCode)
+begin
+	update USRMST set iRoleID = @roleId, iDept=@Type where sUSRCode = @userCode
+	 select @roleName =sRolName from ROLEMST where iPk_RolId=@roleId
+	select 1 as StatusCode , 'Details Updated Successfully...!' as [Message], @roleName as RoleName,@Password as encrytedPass
+end
+else
+begin
+select @usertypeID =iPK_CustEnum from CSTMENUM where sName ='Company User' and iFK_EnumNo =1
+ set @PartyId='U'+ convert(nvarchar(100),(SELECT FORMAT(isnull(max(iPK_USRID),0)+1,'000000') from [db_SmrtEnsr].[dbo].[USRMST]),103)
+ select @roleName =sRolName from ROLEMST where iPk_RolId=@roleId
+ insert into USRMST(sUSRCode,sPrntId,sEmail,sUSRNME,sNME,sPhone,iRoleId,iDept,bPassword,iIsactive,iUsrTypeID)
+ values(@PartyId,'A000001',@EmailId,@userName,@FirstName,@MobileNumber,@roleId,@Type,@Password,1,@usertypeID)
+ select 1 as StatusCode , 'Insert Successfully!' as [Message], @roleName as RoleName,@Password as encrytedPass
+
+ end
+End
+
+GO
+/****** Object:  StoredProcedure [dbo].[USP_MASTER_UpdateSettingTitle_Update]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+/****** Object:  StoredProcedure [dbo].[USP_MASTER_UpdateSettingTitle_Update]    Script Date: 21-02-2023 11:22:33 ******/
+
+CREATE Procedure [dbo].[USP_MASTER_UpdateSettingTitle_Update]
+(
+@Id int,
+@Text nvarchar(50)
+)
+As
+Begin
+	Update CSTMENUM set sName=Upper(@Text) ,dtUpdtOn=GETDATE() where iPK_CustEnum=@Id
+	Select 1 StatusCode 
+End
+GO
+/****** Object:  StoredProcedure [dbo].[USP_MASTER_UpdateUserDetails_Update]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author: <Vivek Choudhary>
+-- Create date: <25.Sep.2022>
+-- Description:	<This procedure is used for updating the details for a specific user>
+-- =============================================
+Create Procedure [dbo].[USP_MASTER_UpdateUserDetails_Update]
+@sUSRCode nvarchar(500) = null
+,@sNME nvarchar(500) = null
+,@sSurNME nvarchar(500) = null
+,@sUSRNME nvarchar(500) = null
+,@dtDOB nvarchar(10) = null
+,@sPhone nvarchar(10) = null
+,@iCountryID int = null
+,@iStateID int = null
+,@iCityID int = null
+,@sPincode nvarchar(6) = null
+,@sAadhaar nvarchar(12) = null
+,@sPan nvarchar(10) = null
+,@sAddress nvarchar(max)= null
+as
+if exists (select * from USRMST where sUSRCode= @sUSRCode)
+begin
+	update USRMST set
+		sNME=case when @sNME is null then sNME else @sNME end
+		,sSurNME =case when @sSurNME is null then sSurNME else @sSurNME end
+		,sUSRNME =case when @sUSRNME is null then sUSRNME else @sUSRNME end 
+		,dtDOB =case when @dtDOB is null then dtDOB else @dtDOB end 
+		,sPhone = case when @sPhone is null then sPhone else @sPhone end 
+		,iCountryID =case when @iCountryID is null then iCountryID else @iCountryID end 
+		,iStateID =case when @iStateID is null then iStateID else @iStateID end 
+		,iCityID = case when @iCityID is null then iCityID else @iCityID end 
+		,sPincode =case when @sPincode is null then sPincode else @sPincode end 
+		,sAadhaar= case when @sAadhaar is null then sAadhaar else @sAadhaar end
+		,sPan = case when @sPan is null then sPan else @sPan end 
+		,sAddress =case when @sAddress is null then sAddress else @sAddress end 
+		where sUSRCode= @sUSRCode
+	select 1 as StatusCode , 'User Details Updated Successfully..' as [Message]	,@sUSRCode as [userCode]
+end
+else
+begin
+	select 1 as StatusCode , 'User Details Not Exists..' as [Message],'' as [userCode]
+end
+GO
+/****** Object:  StoredProcedure [dbo].[USP_MASTER_UserLoginCheck_Select]    Script Date: 01-03-2023 20:13:15 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: <Vivek Chaudhary>
+-- Create date: <22.Sep.2022>
+-- Description:	<This SP is used to check user credential verifiy succesfully>
+-- =============================================
+Create Procedure [dbo].[USP_MASTER_UserLoginCheck_Select] --'iamvk249@gmail.com','GGql2fNet+76r37u9QqhpS71j4fliMEMaqHyAEqETPM='
+@EmailId NVARCHAR(2000),
+@Passwordstr NVARCHAR(500)
+AS
+	Begin
+		
+		SELECT P.sUSRCode,
+			   P.sNME+' '+isnull(P.sSurNME,'') as [Name],
+			   P.sUSRNME as [Username],
+			   P.iUsrTypeID as [UsertypeID],
+			   enum.sName as [Usertype],
+			   sEmail,
+			   sPhone,
+			   case when P.iIsactive is null then 0 else 1 end as IsActive,
+			   I.sDocURL profileImage,
+			   iStateID,
+			   iCountryID,
+			   iCityID,
+			   iFK_LicMstId,
+			   P.iRoleID,
+			   P.iDept as iDeptID,
+			   P.iGrpID
+			   
+		FROM dbo.USRMST P left join ATTCHMENT I on I.sUSRCode=P.sUSRCode and I.iDoctypeID=8
+		left join CSTMENUM enum  on enum.iPK_CustEnum = p.iUsrTypeID
+		WHERE (sEmail=@EmailId or sPhone =@EmailId or sUSRNME =@EmailId) AND bPassword=@Passwordstr --and isnull(P.iIsactive,0)<>0
+		--WHERE (sEmail=@EmailId or sPhone =@EmailId or sUSRNME =@EmailId) AND bPassword=HASHBYTES('SHA2_512', @Passwordstr+CAST(sSalt AS NVARCHAR(36))) --and isnull(P.IsActive,0)<>0
+		
+	END
+GO

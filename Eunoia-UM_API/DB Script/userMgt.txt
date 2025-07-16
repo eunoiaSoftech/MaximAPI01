@@ -1,0 +1,1106 @@
+﻿
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <25.Sep.2022>
+-- Description:	<This Procedure is used to manage the menumasters table ex :  select, insert, update>
+-- =============================================
+Create Procedure [dbo].[USP_ADMIN_ManageMenus_SaveUpdateView] 
+(    
+@MenuName nvarchar(100),    
+@ControllerName nvarchar(100),    
+@ActionName nvarchar(100),    
+@PartyId nvarchar(100)=null,    
+@MenuId int,    
+@Status int    
+)    
+As    
+Begin    
+	Begin Try 
+		declare @Id int=0   
+		if(@MenuId=0)
+			select @Id=Isnull(iPK_MenuId,0) from MENUMST where sCntrllrNm=@ControllerName and sActnMthd=@ActionName and sMenuName=@MenuName    
+		if(@Id<>0) 
+			Begin 
+				select 1 as StatusCode , 'All ready Exist In table' as [Message]     
+			End    
+		else    
+			Begin 
+				if(@MenuId<>0) 
+					Begin 
+						Update MENUMST set sCntrllrNm=@ControllerName,sActnMthd=@ActionName,sMenuName=@MenuName,iStatus=@Status    
+						where iPK_MenuId=@MenuId    
+						select 1 as StatusCode , 'Update Succefully' as [Message]     
+					End    
+				else    
+					Begin 
+						insert into MENUMST(sCntrllrNm,sActnMthd,sMenuName,iStatus,dtCrtdDt)
+						values(@ControllerName,@ActionName,@MenuName,@Status,GETDATE())    
+						select 1 as StatusCode , 'Record Saved Successfully' as [Message]     
+					End    
+			End    
+	End Try     
+	begin catch       
+		--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors    
+		select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body    
+	end catch     
+End
+
+
+/--------------------------------------------------
+\
+-- =============================================
+-- Author: <Abhishek Rohilla> 
+-- Create date: <22.Sep.2022> 
+-- Description: <This sp is used to Show menus on menu index page>
+-- =============================================  
+create Procedure [dbo].[USP_ADMIN_DisplayMenu_View] 
+( @MenuMasterId int=null ) As 
+Begin
+select M.iPK_MenuId MenuId,M.sCntrllrNm ControllerName,M.sActnMthd ActionMethod,M.sMenuName MenuName,M.iStatus Status
+from MENUMST M where M.iStatus!=2 and  (M.iPK_MenuId=@MenuMasterId or @MenuMasterId is null) 
+End
+
+-------------------------------------------------------------------
+
+
+-- Author:		<Abhishek Rohilla>
+-- Create date: <22.Sep.2022>
+-- Description:	This sp is used to retrive Submenu list from the system
+-- =============================================
+
+create Procedure [dbo].[USP_ADMIN_GetSystemSubmenu_View]
+ (
+  @SubMenuId int=null
+ )
+ As
+  Begin
+	select M.iSubMnuId, M.iFK_MnuId,M.sCntrolName,M.sActnMthd,M.sSubMnuName,M.iStatus,F.sMenuName from SUBMENUMST M
+	left join MENUMST F on F.iPK_MenuId=M.iFK_MnuId
+	where M.iStatus!=2 and  (M.iSubMnuId=@SubMenuId or @SubMenuId is null)
+  End
+
+
+
+  --------------------------------
+  
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <25.Sep.2022>
+-- Description:	<This Procedure is used to manage the submenumasters table ex :  select, insert, update>
+-- =============================================
+Create Procedure [dbo].[USP_ADMIN_ManageSubMenus_SaveUpdateView]
+(    
+@SubMenuId int,    
+@ControllerName nvarchar(100),    
+@ActionMethod nvarchar(100),    
+@SubMenuName nvarchar(100),    
+@Status int,      
+@MenuId int    
+)    
+As    
+Begin    
+	Begin Try 
+		declare @Id int;    
+		Select @Id=ISNULL(iSubMnuId,0) from SUBMENUMST where sCntrolName=@ControllerName and sActnMthd=@ActionMethod and sSubMnuName=@SubMenuName and iFK_MnuId=@MenuId    
+		if(@Id<>0) 
+			Begin 
+				select 0 as StatusCode , 'All ready Exist In table' as [Message]    
+			End    
+		else    
+			Begin 
+				if(@SubMenuId<>0) 
+					Begin 
+						Update SUBMENUMST set sCntrolName=@ControllerName,sActnMthd=@ActionMethod,iFK_MnuId=@MenuId,iStatus=@Status,sSubMnuName=@SubMenuName where iSubMnuId=@SubMenuId    
+						select 1 as StatusCode , 'Update Succefully' as [Message]    
+					End    
+				else    
+					Begin 
+						insert into SUBMENUMST(sCntrolName,sActnMthd,iFK_MnuId,iStatus,dtCrtdDt,sSubMnuName) 
+						values(@ControllerName,@ActionMethod,@MenuId,@Status,GETDATE(),@SubMenuName)    
+						select 1 as StatusCode , 'Record Saved Successfully!' as [Message]     
+					End    
+			End   
+	End Try     
+	begin catch       
+		--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors    
+		select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body    
+	end catch     
+End
+---------------------------------------
+
+
+-- =============================================
+-- Author:		<Abhishek Rohilla>
+-- Create date: <23.Sep.2022>
+-- Description:	<This Procedure used to get role userwise>
+-- =============================================
+Create Procedure [dbo].[USP_ADMIN_GetSUBMenuByMenuId_Select] 
+(
+@MenuId int=0
+)
+AS
+Begin
+
+			select S.iSubMnuId Id,S.sSubMnuName Text from SUBMENUMST S 
+			
+			where S.iStatus=1 and S.iFK_MnuId=@MenuId
+	
+End
+
+-----------------------------------
+
+
+
+
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <22.Sep.2022>
+-- Description:	<This SP is use to add new department in the system
+-- =============================================
+
+create Procedure [dbo].[USP_ADMIN_CreateNewDepartment_Save]
+
+@DepartmentId int ,
+@DepartmentName nvarchar(500) ,
+@PartyId nvarchar(100)=null,
+@CreatedBy nvarchar(500)=null,
+@type nvarchar(100)
+as
+Begin
+	if(@type = 'Insert')
+		begin
+			if exists(select * from DPETMST where sDeptName=@DepartmentName)
+				begin
+					select -1 as StatusCode , 'Details Already Exists!' as [Message]   
+				end
+				else
+					begin
+						insert into DPETMST (sDeptName,iFK_PartyId,iStts,dtCrtdDt,sCrtdBy)
+						values(	@DepartmentName,@PartyId,1,getdate(),@CreatedBy)
+						select 1 as StatusCode , 'Details Inserted Successfully!' as [Message]   
+				end
+		end
+
+	if(@type = 'Update')
+		begin
+			Update DPETMST set sDeptName =	@DepartmentName where iPK_DeptId= @DepartmentId
+			select 1 as StatusCode , 'Details Updated Successfully!' as [Message]   
+		end
+End
+------------------------------------------------------
+
+-- =============================================
+-- Author:		<Vivek,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+
+create Procedure [dbo].[USP_MASTER_ActivateDeactivateMastersForm_Update]
+(            
+@tablename nvarchar(200),            
+@Id int,            
+@type int,
+@Display nvarchar(20)=null,
+@Guid nvarchar(50)=null
+            
+)            
+As            
+         
+declare @active int           
+
+			 
+if(@tablename='DepartmentMaster')          
+ Begin try            
+	set @active=(select iStts from DPETMST where iPK_DeptId=@Id)            
+ if(@active=1)            
+	set @active=0            
+ else            
+	set @active=1            
+  
+ if(@type=2)            
+	set @active=2            
+   
+	Update DPETMST set iStts=@active where iPK_DeptId=@Id            
+	select 1 as StatusCode , 'Status Successfully Update!' as [Message]                 
+ End try            
+ begin catch               
+	--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors            
+	select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+ end catch     
+
+ if(@tablename='RoleMasterTable')
+  Begin try            
+	set @active=(select iStatus from ROLEMST where iPk_RolId=@Id)            
+ if(@active=1)            
+	set @active=0            
+ else            
+	set @active=1            
+  
+ if(@type=2)            
+	set @active=2            
+	Update ROLEMST set iStatus=@active where iPk_RolId=@Id            
+	select 1 as StatusCode , 'Status Successfully Update!' as [Message]                 
+ End try            
+ begin catch               
+	--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors            
+	select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+ end catch  
+
+
+          
+if(@tablename='GroupMaster')          
+  Begin try            
+		set @active=(select iStatus from GRPMST where biPK_MSTId=@Id)            
+  if(@active=1)            
+		set @active=0            
+  else            
+		set @active=1            
+  if(@type=2)            
+		set @active=2            
+  
+  Update GRPMST set iStatus=@active where biPK_MSTId=@Id            
+  select 1 as StatusCode , 'Status Successfully Update!' as [Message]             
+            
+  End try            
+  begin catch               
+	--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors            
+	select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+  end catch    
+  
+
+  if(@tablename='MappingRoleWithDepartmentandGroup')          
+	Begin try            
+         set @active=(select iStatus from ROLDEPT where iPK_RoleDeptId=@Id)            
+	
+	if(@active=1)            
+		set @active=0            
+	else            
+		set @active=1            
+	if(@type=2)            
+		set @active=2    
+		
+	Update ROLDEPT set iStatus=@active where iPK_RoleDeptId=@Id
+	
+	if(@active=2)        
+		begin        
+			select 1 as StatusCode , 'Delete Successfully Update!' as [Message]             
+		End        
+	else        
+		begin        
+			select 1 as StatusCode , 'Status Successfully Update!' as [Message]             
+		End          
+	End try            
+	begin catch               
+		       
+		select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+	end catch    
+
+if(@tablename='Packagelist')   
+
+	Begin try   
+	if(@Display!='displayactive')
+	Begin
+         set @active=(select iStts from PACKAGEMST where iPk_PackId=@Id)            
+	
+	if(@active=1)            
+		set @active=0            
+	else            
+		set @active=1            
+	if(@type=2)            
+		set @active=2    
+		
+	Update PACKAGEMST set iStts=@active where iPk_PackId=@Id
+	
+	if(@active=2)        
+		begin        
+			select 1 as StatusCode , 'Delete Successfully Update!' as [Message]             
+		End        
+	else        
+		begin        
+			select 1 as StatusCode , 'Status Successfully Update!' as [Message]             
+		End  
+		end
+		else
+		Begin
+		 set @active=(select isnull(IsDisplay,0)  from PACKAGEMST where iPk_PackId=@Id) 
+		 if(@active=1)            
+		set @active=0            
+	else            
+		set @active=1 
+		Update PACKAGEMST set IsDisplay=@active where iPk_PackId=@Id
+		select 1 as StatusCode , 'Display Status Successfully Update!' as [Message]             
+		End
+	End try            
+	begin catch               
+		       
+		select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+	end catch    
+	
+if(@tablename='MENUMST')          
+ Begin try            
+	set @active=(select iStatus from MENUMST where iPK_MenuId=@Id)            
+ if(@active=1)            
+	set @active=0            
+ else            
+	set @active=1            
+  
+ if(@type=2)            
+	set @active=2            
+   
+	Update MENUMST set iStatus=@active where iPK_MenuId=@Id            
+	select 1 as StatusCode , 'Status Successfully Update!' as [Message]                 
+ End try            
+ begin catch               
+	--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors            
+	select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+ end catch     
+
+
+ if(@tablename='SUBMENUMST')          
+ Begin try            
+	set @active=(select iStatus from SUBMENUMST where iSubMnuId=@Id)            
+ if(@active=1)            
+	set @active=0            
+ else            
+	set @active=1            
+  
+ if(@type=2)            
+	set @active=2            
+   
+	Update SUBMENUMST set iStatus=@active where iSubMnuId=@Id            
+	select 1 as StatusCode , 'Status Successfully Update!' as [Message]                 
+ End try            
+ begin catch               
+	--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors            
+	select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+ end catch     
+
+ if(@tablename='LICEMST')          
+ Begin try            
+	set @active=(select iStts from LICEMST where iPK_LicMstId=@Guid)            
+ if(@active=1)            
+	set @active=0            
+ else            
+	set @active=1            
+  
+ if(@type=2)            
+	set @active=2            
+   
+	Update LICEMST set iStts=@active where iPK_LicMstId=@Guid            
+	select 1 as StatusCode , 'Status Successfully Update!' as [Message]                 
+ End try            
+ begin catch               
+	--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors            
+	select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+ end catch
+ 
+ if(@tablename='MENUMST')          
+ Begin try            
+	set @active=(select iStatus from MENUMST where iPK_MenuId=@Id)            
+ if(@active=1)            
+	set @active=0            
+ else            
+	set @active=1            
+  
+ if(@type=2)            
+	set @active=2            
+   
+	Update MENUMST set iStatus=@active where iPK_MenuId=@Id            
+	select 1 as StatusCode , 'Status Successfully Update!' as [Message]                 
+ End try            
+ begin catch               
+	--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors            
+	select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+ end catch     
+
+
+ if(@tablename='CSTMENUM')          
+ Begin try            
+	set @active=(select iIsActv from CSTMENUM where iPK_CustEnum=@Id)            
+ if(@active=1)            
+	set @active=0            
+ else            
+	set @active=1            
+  
+ if(@type=2)            
+	set @active=2            
+   
+	Update CSTMENUM set iIsActv=@active where iPK_CustEnum=@Id            
+	select 1 as StatusCode , 'Status Successfully Update!' as [Message]                 
+ End try            
+ begin catch               
+	--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors            
+	select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body            
+ end catch     
+
+------------------------------------------------------
+
+create Procedure [dbo].[USP_ADMIN_GetUserwiseRole_Select] -- 0
+(    
+@Id int=null,  
+@PartyId nvarchar(20)=null 
+)    
+AS    
+begin    
+	if(@Id<>0)
+		Begin
+			Select * from ROLEMST where ROLEMST.iPk_RolId=@Id  and iStatus!=2     
+		end    
+	else    
+		Begin
+			if(@PartyId is not null)
+				Begin
+				Select * from ROLEMST where iStatus!=2 
+					--Select * from ROLEMST where iStatus!=2 and sCrtdByPrtyCode=@PartyId
+				End
+			else
+				Begin
+					Select * from ROLEMST where iStatus!=2  
+				End
+		end    
+end 
+------------------------------------
+
+
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <25.Sep.2022>
+-- Description:	<This sp is used to create a new role and update the existing one>
+-- =============================================
+create Procedure [dbo].[USP_ADMIN_NewRole_SaveUpdate]
+(
+@RoleId int,
+@RoleName nvarchar(100),
+@Status int,
+@PartyId nvarchar(50)=null
+)
+as
+BEGIN
+	Begin Try
+		if(@RoleId<>0)
+			Begin
+				Update ROLEMST set sRolName=@RoleName,iStatus=@Status where iPk_RolId=@RoleId 
+				select 1 as StatusCode , 'Update Successfully' as [Message]	
+			End
+		else
+			Begin
+				insert into ROLEMST(sRolName,iStatus,dtCrtdDt,sCrtdByPrtyCode) values(@RoleName,@Status,GETDATE(),@PartyId)
+				select 1 as StatusCode , 'Insert Successfully' as [Message]	
+			End
+	End Try 
+	begin catch			
+		--EXEC [dbo].[USP_ADMIN_StoreProcedureErrorHandling_Save] 0,0,1 --To log Stored procedure errors
+			select -1 as StatusCode, 'Check Error - ' + cast(ERROR_Number() as varchar) + ' ' + ERROR_MESSAGE () as [Message],'' AS Body
+		end catch	
+End
+-----------------------------------------------------------
+
+
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <22.Sep.2022>
+-- Description:	<This SP is use to add new department in the system
+-- =============================================
+create Procedure [dbo].[USP_ADMIN_CreateNewGroup_SaveUpdate]      
+@GroupId int ,    
+@GroupName nvarchar(500) ,      
+@MenuID int ,      
+@SubmenuId int ,        
+@PartyId nvarchar(100) ,      
+@CreatedBy nvarchar(500),    
+@type nvarchar(100)    
+      
+as      
+Begin      
+	if(@type = 'Insert')    
+		begin 
+		  if(@GroupId=0)    
+			begin 
+				set @GroupId = (select isnull(max(iPK_GrpId),0)+1 from GRPMST)    
+			end    
+		  if exists(select * from GRPMST where sGrpName=@GroupName and iMenuId=@MenuID and iSubMenuId=@SubmenuId and sPartyCode=@PartyId)      
+			begin 
+				select -1 as StatusCode , 'Details Already Exists!' as [Message]         
+			end      
+		  else      
+			begin 
+				insert into GRPMST (iPK_GrpId,sGrpName,iMenuId,iSubMenuId,iStatus,sPartyCode,dtCrtdDt,sCrtdBy)      
+				values( @GroupId,@GroupName,@MenuID,@SubmenuId,1,@PartyId,getdate(),@CreatedBy)      
+				select 1 as StatusCode , 'Record Saved Successfully!' as [Message]         
+			end      
+		end    
+	if(@type = 'Update')    
+		begin    
+			Update GRPMST set sGrpName =@GroupName,iMenuId=@MenuID,iSubMenuId=@SubmenuId where biPK_MSTId= @GroupId    
+			select 1 as StatusCode , 'Record Update Successfully!' as [Message]       
+		 end    
+End
+------------------------------------------------------
+
+
+-- =============================================
+-- Author:		<Abhishek Rohilla>
+-- Create date: <23.Sep.2022>
+-- Description:	<This Procedure used to get Department and groups mapping role wise>
+-- =============================================
+create Procedure [dbo].[USP_ADMIN_GetDepartmentGroupRolesMapping_Select] --'W000001'
+(  
+@Id nvarchar(50)=null  
+)  
+AS  
+Begin   
+	select distinct M.*,D.sDeptName DepartmentName,G.sGrpName GroupName,R.sRolName RoleName,G.sPartyCode PartyId from ROLDEPT M   
+	inner join DPETMST D on  M.iDeptId = D.iPK_DeptId   
+	inner join GRPMST G on  M.iGrpId = G.iPK_GrpId  and (@Id is null or  G.sPartyCode=@Id)  
+	inner join ROLEMST R on  M.iRoleId = R.iPk_RolId   
+	  where M.iStatus!=2
+End
+-----------------------------------------------------------
+
+
+
+
+-- =============================================
+-- Author: <Vivek Choudhary>
+-- Create date: <22.Sep.2022>
+-- Description:	<This Procedure is used to get masters data for dropdown and for binding grid on master index pages ex: notification config master, group master, wallet amount etc>
+-- =============================================
+
+create Procedure [dbo].[USP_ADMIN_GetMaster_Depart_Role_Group_View] --'UserTypeList',null,null
+
+@type nvarchar(100) = null,
+@menuId nvarchar(100) = null,
+@PartyId nvarchar(20)=null,
+@Id BIGINT = NULL
+as
+if(@type='MenuList')
+	begin
+		select 0 as Id, 'Select Menu' as Text
+		union
+		select  iPK_MenuId as Id, sMenuName as Text  from MENUMST where iStatus<>2
+	end
+
+if(@type='Submenus')
+	begin
+		select iDsplyOrdId as Id, sSubMnuName as Text,iSubMnuId as ID1 from SUBMENUMST where iFK_MnuId =cast(@menuId as int) and  iStatus<>2 order by iDsplyOrdId 
+	end
+
+if(@type='DepartmentList')
+	begin
+		select iPK_DeptId as DepartmentID,sDeptName as DepartmentName,format(dtCrtdDt,'dd-MM-yyyy hh:mm:ss tt') as CreatedDate, iStts from DPETMST where iStts<>2
+	end
+
+if(@type='DepartmentSingle')
+	begin
+		select iPK_DeptId as DepartmentID,sDeptName as DepartmentName from DPETMST where iPK_DeptId = cast(@menuId as int) and iStts<>2
+	end
+
+if(@type='GroupList')
+	begin
+		select g.biPK_MSTId,iPK_GrpId,sGrpName,m.sMenuName as Menu,g.iMenuId,sm.sSubMnuName as Submenu,g.iSubMenuId,format(g.dtCrtdDt,'dd-MM-yyyy hh:mm:ss tt') as CreatedDate, g.iStatus 
+		from GRPMST g 
+		left join MENUMST m on m.iPK_MenuId = g.iMenuId
+		left join SUBMENUMST sm on sm.iSubMnuId = g.iSubMenuId
+		where g.iStatus<>2 and (g.sPartyCode= @PartyId or @PartyId Is Null)
+	end
+
+if(@type='GroupSingle')
+	begin
+		select g.biPK_MSTId,iPK_GrpId,sGrpName,m.sMenuName as Menu,g.iMenuId,sm.sSubMnuName as Submenu,g.iSubMenuId,format(g.dtCrtdDt,'dd-MM-yyyy hh:mm:ss tt') as CreatedDate, g.iStatus 
+		from GRPMST g 
+		left join MENUMST m on m.iPK_MenuId = g.iMenuId
+		left join SUBMENUMST sm on sm.iSubMnuId = g.iSubMenuId
+		where biPK_MSTId = cast(@menuId as int) and g.iStatus<>2
+	end
+
+if(@type='RoleList')
+	begin
+		select distinct P.iRoleId as Id,R.sRolName as Text from ROLEMST R 
+		inner join PRTYMST P on P.iRoleId = R.iPk_RolId
+	end
+
+
+
+
+
+
+
+if(@type= 'Department')
+	begin
+		Select 0 Id,'Select Department' text
+		union
+		Select iPK_DeptId Id,sDeptName text from DPETMST where iStts=1 
+	end
+
+if(@type= 'Group')
+	begin
+		Select 0 Id,'Select Group' text
+		union
+		
+		Select   iPK_GrpId Id,sGrpName text from GRPMST where iStatus=1 and (@PartyId is null or sPartyCode=@PartyId)
+	end
+
+if(@type= 'Role')
+	begin
+		Select 0 Id,'Select Role' text
+		union
+		Select iPk_RolId Id,sRolName text from ROLEMST where iStatus=1 and (@PartyId is null or sCrtdByPrtyCode=@PartyId)
+	end
+	
+	----------------------------------------------
+
+	
+GO
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <22.Sep.2022>
+-- Description:	<This SP is use to add/update department group mapping>
+-- =============================================
+create Procedure [dbo].[USP_ADMIN_MapRoleDepartmentGroup_SaveUpdate] 
+(  
+@Id int,  
+@RoleId int,  
+@DepartmentId int,  
+@GroupId int,  
+@Status int,  
+@partyId nvarchar(50)=null  
+)  
+AS  
+Begin  
+	if(@Id<>0) 
+		Begin 
+			Update ROLDEPT set iRoleId=@RoleId,iDeptId=@DepartmentId,iGrpId=@GroupId,iStatus=@Status where iPK_RoleDeptId=@Id  
+			select 1 as StatusCode , 'Update Succefully' as [Message]  
+		End  
+	else  
+		Begin 
+			declare @check int;  
+			select @check=ISNULL(iPK_RoleDeptId,0) from ROLDEPT where iGrpId=@GroupId and iRoleId=@RoleId and iDeptId=@DepartmentId  
+			print(@check)  
+			if(@check<>0) 
+				Begin 
+					select 1 as StatusCode , 'Data Allready Exit' as [Message]   
+				End  
+			else  
+				Begin 
+					insert into ROLDEPT(iRoleId,iDeptId,iGrpId,iStatus,dtCrtdDt,sPartyId) 
+					values(@RoleId, @DepartmentId,@GroupId,@Status,GETDATE(),@partyId)  
+					select 1 as StatusCode , 'Record Saved Successfully!' as [Message]   
+				End
+		End  
+End
+---------------------------------------
+
+
+
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <25.Sep.2022>
+-- Description:	<This Procedure is used to get all the pages and access right a logged in user has>
+-- =============================================
+create Procedure [dbo].[USP_ADMIN_PageAccessRightsUserwise_View] 
+ (
+ @MappingId int,
+ @GroupId int
+ )
+ AS
+Begin
+	 select ISnull(U.lPK_UsrPgRght,0) UserID
+	 ,M.biPK_MSTId ID
+	 ,M.iPK_GrpId GroupID
+	 ,Menu.sMenuName MenuName
+	 ,SubMenu.sSubMnuName SubMenuName
+	 ,isnull(U.iAllowInst,0) perInsert
+	 ,isnull(U.iAllowDelt,0) perDelete
+	 ,isnull(U.iAllowEdit,0) perEdit
+	 ,isnull(U.iAllowView,0) perView
+	 ,isnull(U.iStatus,0) perStatus 
+	 from [dbo].[GRPMST] M 
+	 left join ROLDEPT Mapping on Mapping.iPK_RoleDeptId=@MappingId and Mapping.iGrpId= @GroupId
+	 left join [dbo].[USRRGHTS] U on U.iFK_MapngId=@MappingId and U.iMstGrupId=M.biPK_MSTId
+	 left join MENUMST Menu on Menu.iPK_MenuId=M.iMenuId
+	 left join SUBMENUMST SubMenu on SubMenu.iSubMnuId=M.iSubMenuId
+	 where M.iPK_GrpId=@GroupId
+End
+
+-------------------------------------------------------------
+
+-- =============================================
+-- Author: <Abhishek Rohilla>
+-- Create date: <22.Sep.2022>
+-- Description:	<This sp is used to give access rights to the users for menus and also operation like insert , update delete and view
+-- =============================================
+create Procedure [dbo].[USP_ADMIN_UserwiseRoleAccessRights_Save]
+	 (
+		@Type nvarchar(50),
+		@MappingId int,
+		@PermissionId int=0,
+		@MstGroupID int,
+		@status int,
+		@PartyId nvarchar(50)=null
+	 )
+
+AS
+Begin
+if(@PermissionId=0)
+	Begin
+		select @PermissionId=IsNull(lPK_UsrPgRght,0) from [dbo].[USRRGHTS] where iFK_MapngId=@MappingId and iMstGrupId=@MstGroupID
+		End
+	Print(@PermissionId)
+
+	if(@PermissionId=0)
+		Begin
+			insert into [dbo].[USRRGHTS] (iFK_MapngId,iMstGrupId,iAllowInst,iAllowDelt,iAllowEdit,iAllowView,iStatus,sFK_PrtyCode)
+			values (@MappingId, @MstGroupID,0,0,0,0,0,@PartyId)
+		End
+
+	select @PermissionId=IsNull(lPK_UsrPgRght,0) from [dbo].[USRRGHTS] where iFK_MapngId=@MappingId and iMstGrupId=@MstGroupID
+	if(@Type='InsertOperation')
+		Begin
+			Update [dbo].[USRRGHTS] set iAllowInst=@status where lPK_UsrPgRght=@PermissionId
+		End
+	if(@Type='UpdateOpertaion')
+		Begin
+			Update [dbo].[USRRGHTS] set iAllowEdit=@status where lPK_UsrPgRght=@PermissionId
+		End
+	if(@Type='DeleteOperation')
+		Begin
+			Update [dbo].[USRRGHTS] set iAllowDelt=@status where lPK_UsrPgRght=@PermissionId
+		End
+	if(@Type='ViewOperation')
+		Begin
+			Update [dbo].[USRRGHTS] set iAllowView=@status where lPK_UsrPgRght=@PermissionId
+		End
+	if(@Type='Status')
+		Begin
+			Update [dbo].[USRRGHTS] set iStatus=@status where lPK_UsrPgRght=@PermissionId
+		End
+	select 1 as StatusCode , 'Successfully Update!' as [Message] 
+End
+
+----------------------------------------------------------------------
+
+
+USE [db_Logistics]
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_GetMasterDataForDropdown_View]    Script Date: 3/26/2023 5:58:25 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: <Vivek Choudhary>
+-- Create date: <22.Sep.2022>
+-- Description:	<This Procedure is used to get masters data for dropdown and for binding grid on master index pages ex: notification config master, group master, wallet amount etc>
+-- =============================================
+
+ALTER Procedure [dbo].[USP_ADMIN_GetMasterDataForDropdown_View] --'Add Vehicle Type','tes1t',null
+
+@type nvarchar(100) = null,
+@EnumName nvarchar(max) = null,
+@ExtraId nvarchar(max)=null
+as
+
+declare @EnumID int,@newid int
+set @EnumID = (select iSttngId from ENUMSTNG where sName like '%'+@type+'%')
+if(@type='Vehicle Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type ='Vehicle Body Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Vehicle Model')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type ='Vehicle Maker')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Fuel Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Vehicle Class')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Trip Expense Category')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Trailer Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='UOM')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1
+	end
+--------------------------------------------------For Add Enum From Vehicle Master Page----------------------------------------------------------------
+if((@type='Add Vehicle Type') or (@type='Add Vehicle Body Type') or (@type='Add Vehicle Model') or (@type='Add Vehicle Maker') or (@type='Add Fuel Type') or (@type='Add Vehicle Class') or (@type='Add Trip Expense Category') or (@type='Add Trailer Type'))
+	begin
+		select @ExtraId=isnull(max(iId),0),@newid= max(iFK_EnumNo) from CSTMENUM where iFK_EnumNo = (select iSttngId from ENUMSTNG where sName =REPLACE(@type,'Add ',''))
+		
+			if(@ExtraId=0)
+				Begin
+					Set @ExtraId=(@EnumID-1)*100;
+				End
+			else
+				Begin
+					Set @ExtraId=@ExtraId+1;
+				End
+			insert CSTMENUM (iFK_EnumNo,sName,dtCrtdDt,iId,iIsActv)
+			values(@newid,Upper(@EnumName),GETDATE(),@ExtraId,1)
+			select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1 from CSTMENUM where iFK_EnumNo=@newid
+			order by ID1 desc
+	end
+--------------------------------------------------For Add Enum From Vehicle Master Page----------------------------------------------------------------
+if(@type='VehExistsOrNot')
+	begin
+		if exists(select * from MST_Veh where sUnqIdNo=@EnumName)
+			begin
+				select 1 as Id,'Already Exists' as [Text]
+			end
+		else
+			begin
+				select 0 as Id,'Not Exists' as [Text]
+			end
+	end
+---------------For Visitor Information--------------------------------------------
+	 if(@type='Visit Location')  
+ begin  
+  select  iId as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1  
+  order by iId  
+ end  
+
+  if(@type='Meet Purpose')  
+ begin  
+  select  iId as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1  
+  order by iId  
+ end 
+   if(@type='Respond Visitor')  
+ begin  
+  select  iId as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1  
+  order by iId  
+ end
+   if(@type='UserList')  
+ begin  
+  select  iPK_USRID as Id, sNME as Text, sPhone as ID1  from USRMST where iIsactive =1  
+  order by sNME  
+ end 
+
+ if(@type='MenuList')
+	begin
+		select 0 as Id, 'Select Menu' as Text
+		union
+		select  iPK_MenuId as Id, sMenuName as Text  from MENUMST where iStatus<>2
+	end
+if(@type='GroupList')
+	begin
+		select g.biPK_MSTId as ID,iPK_GrpId as GroupID,sGrpName as GroupName,m.sMenuName as Menu,g.iMenuId,sm.sSubMnuName as Submenu,g.iSubMenuId,format(g.dtCrtdDt,'dd-MM-yyyy hh:mm:ss tt') as CreatedDate, g.iStatus as Status
+		from GRPMST g 
+		left join MENUMST m on m.iPK_MenuId = g.iMenuId
+		left join SUBMENUMST sm on sm.iSubMnuId = g.iSubMenuId
+		where g.iStatus<>2 and (g.sPartyCode= @ExtraId or @ExtraId Is Null)
+	end
+	if(@type='Submenus')
+	begin
+		select iDsplyOrdId as Id, sSubMnuName as Text,iSubMnuId as ID1 from SUBMENUMST where iFK_MnuId =cast(@EnumName as int) and  iStatus<>2 order by iDsplyOrdId 
+	end
+
+	if(@type='DepartmentList')
+	begin
+		select iPK_DeptId as DepartmentID,sDeptName as DepartmentName,format(dtCrtdDt,'dd-MM-yyyy hh:mm:ss tt') as CreatedDate, iStts as Status from DPETMST where iStts<>2
+	end
+	--------------------------------------------
+	USE [db_Logistics]
+GO
+/****** Object:  StoredProcedure [dbo].[USP_ADMIN_GetMasterDataForDropdown_View]    Script Date: 3/26/2023 5:58:25 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author: <Vivek Choudhary>
+-- Create date: <22.Sep.2022>
+-- Description:	<This Procedure is used to get masters data for dropdown and for binding grid on master index pages ex: notification config master, group master, wallet amount etc>
+-- =============================================
+
+ALTER Procedure [dbo].[USP_ADMIN_GetMasterDataForDropdown_View] --'Add Vehicle Type','tes1t',null
+
+@type nvarchar(100) = null,
+@EnumName nvarchar(max) = null,
+@ExtraId nvarchar(max)=null
+as
+
+declare @EnumID int,@newid int
+set @EnumID = (select iSttngId from ENUMSTNG where sName like '%'+@type+'%')
+if(@type='Vehicle Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type ='Vehicle Body Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Vehicle Model')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type ='Vehicle Maker')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Fuel Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Vehicle Class')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Trip Expense Category')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='Trailer Type')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1 desc
+	end
+
+if(@type='UOM')
+	begin
+		select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1
+		order by ID1
+	end
+--------------------------------------------------For Add Enum From Vehicle Master Page----------------------------------------------------------------
+if((@type='Add Vehicle Type') or (@type='Add Vehicle Body Type') or (@type='Add Vehicle Model') or (@type='Add Vehicle Maker') or (@type='Add Fuel Type') or (@type='Add Vehicle Class') or (@type='Add Trip Expense Category') or (@type='Add Trailer Type'))
+	begin
+		select @ExtraId=isnull(max(iId),0),@newid= max(iFK_EnumNo) from CSTMENUM where iFK_EnumNo = (select iSttngId from ENUMSTNG where sName =REPLACE(@type,'Add ',''))
+		
+			if(@ExtraId=0)
+				Begin
+					Set @ExtraId=(@EnumID-1)*100;
+				End
+			else
+				Begin
+					Set @ExtraId=@ExtraId+1;
+				End
+			insert CSTMENUM (iFK_EnumNo,sName,dtCrtdDt,iId,iIsActv)
+			values(@newid,Upper(@EnumName),GETDATE(),@ExtraId,1)
+			select  iPK_CustEnum as Id, sName as Text, dtCrtdDt as ID1 from CSTMENUM where iFK_EnumNo=@newid
+			order by ID1 desc
+	end
+--------------------------------------------------For Add Enum From Vehicle Master Page----------------------------------------------------------------
+if(@type='VehExistsOrNot')
+	begin
+		if exists(select * from MST_Veh where sUnqIdNo=@EnumName)
+			begin
+				select 1 as Id,'Already Exists' as [Text]
+			end
+		else
+			begin
+				select 0 as Id,'Not Exists' as [Text]
+			end
+	end
+---------------For Visitor Information--------------------------------------------
+	 if(@type='Visit Location')  
+ begin  
+  select  iId as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1  
+  order by iId  
+ end  
+
+  if(@type='Meet Purpose')  
+ begin  
+  select  iId as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1  
+  order by iId  
+ end 
+   if(@type='Respond Visitor')  
+ begin  
+  select  iId as Id, sName as Text, dtCrtdDt as ID1  from CSTMENUM where iFK_EnumNo =@EnumID and iIsActv =1  
+  order by iId  
+ end
+   if(@type='UserList')  
+ begin  
+  select  iPK_USRID as Id, sNME as Text, sPhone as ID1  from USRMST where iIsactive =1  
+  order by sNME  
+ end 
+
+ if(@type='MenuList')
+	begin
+		select 0 as Id, 'Select Menu' as Text
+		union
+		select  iPK_MenuId as Id, sMenuName as Text  from MENUMST where iStatus<>2
+	end
+if(@type='GroupList')
+	begin
+		select g.biPK_MSTId as ID,iPK_GrpId as GroupID,sGrpName as GroupName,m.sMenuName as Menu,g.iMenuId,sm.sSubMnuName as Submenu,g.iSubMenuId,format(g.dtCrtdDt,'dd-MM-yyyy hh:mm:ss tt') as CreatedDate, g.iStatus as Status
+		from GRPMST g 
+		left join MENUMST m on m.iPK_MenuId = g.iMenuId
+		left join SUBMENUMST sm on sm.iSubMnuId = g.iSubMenuId
+		where g.iStatus<>2 and (g.sPartyCode= @ExtraId or @ExtraId Is Null)
+	end
+	if(@type='Submenus')
+	begin
+		select iDsplyOrdId as Id, sSubMnuName as Text,iSubMnuId as ID1 from SUBMENUMST where iFK_MnuId =cast(@EnumName as int) and  iStatus<>2 order by iDsplyOrdId 
+	end
+
+	if(@type='DepartmentList')
+	begin
+		select iPK_DeptId as DepartmentID,sDeptName as DepartmentName,format(dtCrtdDt,'dd-MM-yyyy hh:mm:ss tt') as CreatedDate, iStts as Status from DPETMST where iStts<>2
+	end
+
+	if(@type= 'CompanyUser')
+	begin
+		select sNME,
+sUSRNME,
+sUSRCode,
+sEmail,
+sPhone,
+iIsactive,
+iRoleID,
+rol.sRolName as [Role]
+
+
+from USRMST u
+inner join ROLEMST rol on rol.iPk_RolId =u.iRoleID 
+--where iUsrTypeID =3026
+
+	end
