@@ -13,6 +13,7 @@
         public int mobileOTP { get; set; }
         public int emailOTP { get; set; }
         public string? userID { get; set; }
+        public string TokenId { get; set; }
     }
     public class VerificationRequest
     {
