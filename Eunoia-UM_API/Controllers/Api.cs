@@ -26,7 +26,7 @@ namespace Eunoia_UM_API.Controllers
                 param[0] = new SqlParameter("@fromdate", sFormdate);
                 param[1] = new SqlParameter("@todate", sTodate);
                 DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Accounts_TalleyExport_TripExpense]", param);
-                                                             
+
                 if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
                 {
                     List<Dictionary<string, object>> dataList = new List<Dictionary<string, object>>();
@@ -147,5 +147,154 @@ namespace Eunoia_UM_API.Controllers
             }
             return api_Response;
         }
+
+        [HttpPost]
+        [Route("GetVehicleDetailsForAccident")]
+        public Api_CommonResponse GetVehicleDetailsForAccident(int iFk_UserType, string iFk_UserId)
+        {
+            try
+            {
+
+                SqlParameter[] param = new SqlParameter[2];
+                param[0] = new SqlParameter("@iFk_UserType", iFk_UserType);
+                param[1] = new SqlParameter("@iFk_UserId", iFk_UserId);
+
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_GetVehicleListForAccident_MobileApp]", param);
+
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    api_Response.responseCode = 200;
+                    api_Response.message = "Data Get Successfully";
+                    api_Response.statusCode = 0;
+                    api_Response.data = null;
+                    api_Response.data1 = JsonConvert.DeserializeObject<List<VehicleDet>>(JsonConvert.SerializeObject(ds.Tables[0]));
+
+                }
+                else
+                {
+                    api_Response.responseCode = 400;
+                    api_Response.message = "API Down...";
+                    api_Response.statusCode = -1;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                api_Response.responseCode = 500;
+                api_Response.message = "Internal server error: " + ex.Message;
+                api_Response.statusCode = -1;
+            }
+            return api_Response;
+        }
+
+        [HttpPost]
+        [Route("GetDriversByVehicleId")]
+        public Api_CommonResponse GetDriversByVehicleId(int vehicleId)
+        {
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@VehicleId", vehicleId);
+
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_GetDriversByVehicleId]", param);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    api_Response.responseCode = 200;
+                    api_Response.message = "Data retrieved successfully";
+                    api_Response.statusCode = 0;
+                    api_Response.data1 = JsonConvert.DeserializeObject<List<DriverDetails>>(
+                        JsonConvert.SerializeObject(ds.Tables[0])
+                    );
+                }
+                else
+                {
+                    api_Response.responseCode = 404;
+                    api_Response.message = "No drivers found for the given vehicle ID";
+                    api_Response.statusCode = -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log ex if needed
+                api_Response.responseCode = 500;
+                api_Response.message = "Internal server error: " + ex.Message;
+                api_Response.statusCode = -1;
+            }
+
+            return api_Response;
+        }
+
+        [HttpPost]
+        [Route("GetLatestLRByVehicleId")]
+        public Api_CommonResponse GetLatestLRByVehicleId(int vehicleId)
+        {
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@VehicleId", vehicleId);
+
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_GetLatestLR_ByVehicleAndDriver]", param);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    var lrData = JsonConvert.DeserializeObject<List<LRDetails>>(JsonConvert.SerializeObject(ds.Tables[0]));
+
+                    api_Response.responseCode = 200;
+                    api_Response.message = "LR record fetched successfully.";
+                    api_Response.statusCode = 0;
+                    api_Response.data = null;
+                    api_Response.data1 = lrData;
+                }
+                else
+                {
+                    api_Response.responseCode = 404;
+                    api_Response.message = "No LR record found for the given vehicle.";
+                    api_Response.statusCode = -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                api_Response.responseCode = 500;
+                api_Response.message = "Internal server error: " + ex.Message;
+                api_Response.statusCode = -1;
+            }
+            return api_Response;
+        }
+
+        [HttpGet]
+        [Route("GetPersonVisited")]
+        public Api_CommonResponse GetPersonVisited()
+        {
+            try
+            {
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_GetPersonVisited]", null);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    api_Response.responseCode = 200;
+                    api_Response.message = "Data retrieved successfully";
+                    api_Response.statusCode = 0;
+
+                    api_Response.data = JsonConvert.DeserializeObject<List<PersonVisitedModel>>(
+                        JsonConvert.SerializeObject(ds.Tables[0]));
+                }
+                else
+                {
+                    api_Response.responseCode = 404;
+                    api_Response.message = "No records found";
+                    api_Response.statusCode = -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                api_Response.responseCode = 500;
+                api_Response.message = "Internal server error: " + ex.Message;
+                api_Response.statusCode = -1;
+            }
+
+            return api_Response;
+        }
+
     }
 }

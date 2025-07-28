@@ -267,4 +267,13 @@
         public string? sIssueBy { get; set; }
     }
 
+    public class DriverDetails
+    {
+        public string FullName { get; set; }
+        public string iPMobileNo { get; set; }
+        public string sDriverCode { get; set; }
+        public string sLicsNumber { get; set; }
+        public string dtLicsExpiry { get; set; }
+    }
+
 }
