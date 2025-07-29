@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 
@@ -96,6 +97,11 @@ namespace Eunoia_UM_API.Model
     public class ResetPassword : LoginModal
     {
         public string? Type { get; set; }
+        public string? bPassword { get; set; }
+        public string? Newpassword { get; set; }
+        public string? Confirmpassword { get; set; }
+        public string? Email { get; set; }
+        //public string? Type { get; set; }
     }
     public class UserModelSession
     {

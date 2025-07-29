@@ -554,5 +554,10 @@ namespace Eunoia_UM_API.Helper
                 return $"Error: {ex.Message}";
             }
         }
+
+        internal static string Encrypt(object confirmPassword)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

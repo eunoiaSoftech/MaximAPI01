@@ -376,7 +376,7 @@ namespace Eunoia_UM_API.Controllers
             }
             catch (Exception e)
             {
-                throw e;
+                throw ;
             }
             return api_Response;
         }
@@ -388,10 +388,27 @@ namespace Eunoia_UM_API.Controllers
             try
             {
 
-                SqlParameter[] param = new SqlParameter[3];
+                SqlParameter[] param = new SqlParameter[5];
                 param[0] = new SqlParameter("@email", resetpassword.Email);
-                param[1] = new SqlParameter("@password", (resetpassword.Type != "Reset") ? "" : DBCS.Encrypt(resetpassword.Password));
-                param[2] = new SqlParameter("@type", resetpassword.Type);
+                //param[1] = new SqlParameter("@password", (resetpassword.Type != "Reset") ? "" : DBCS.Encrypt(resetpassword.Password));
+                //param[1] = new SqlParameter("@password", (resetpassword.Type != "Reset") ? "" : DBCS.Encrypt(resetpassword.Password));
+                //param[2] = new SqlParameter("@Newpassward ", (resetpassword.Type != "Reset") ? "" : DBCS.Encrypt(resetpassword.Newpassward));
+                //param[3] = new SqlParameter("@Newpassward", (resetpassword.Type != "Reset") ? "" : DBCS.Encrypt(resetpassword.ConfirmPassword));
+                //param[1] = new SqlParameter("@password", (resetpassword.Type != "Reset") ? "" : DBCS.Encrypt(resetpassword.Password));
+                //param[2] = new SqlParameter("@ConfirmPassward", (resetpassword.Type != "Reset") ? "" : DBCS.Encrypt(resetpassword.ConfirmPassword));
+                //param[3] = new SqlParameter("@Newpassward", (resetpassword.Type != "Reset") ? "" : DBCS.Encrypt(resetpassword.Newpassward));
+
+                param[1] = new SqlParameter("@bpassword", (resetpassword.Type != "Reset" || string.IsNullOrEmpty(resetpassword.Password))
+                 ? "" : DBCS.Encrypt(resetpassword.Password));
+                param[3] = new SqlParameter("@Newpassword", (resetpassword.Type != "Reset" || string.IsNullOrEmpty(resetpassword.Newpassword))
+                    ? "" : DBCS.Encrypt(resetpassword.Newpassword));
+
+
+                param[2] = new SqlParameter("@Confirmpassword ", (resetpassword.Type != "Reset" || string.IsNullOrEmpty(resetpassword.Confirmpassword))
+                    ? "" : DBCS.Encrypt(resetpassword.Confirmpassword));
+
+                
+                param[4] = new SqlParameter("@type", resetpassword.Type);
                 DataSet ds = DBOperation.FillDataSet("[dbo].[USP_ADMIN_ResetUsersPassword_SelectUpdate]", param);
                 if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
                 {

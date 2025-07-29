@@ -1,0 +1,852 @@
+﻿using Eunoia_UM.Helper;
+using Eunoia_UM.Helpers;
+using Eunoia_UM.Models;
+using Eunoia_UM.Models.CommonModals;
+using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Ocsp;
+using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using DocumentFormat.OpenXml.Packaging;
+using System.Net;
+
+namespace Eunoia_UM.Controllers
+{
+    public class UserController : Controller
+    {
+        Api_CommonResponse Response = new Api_CommonResponse();
+        public ActionResult AddNewUser(string userCode = "")
+        {
+            var departmentList = Common.GetMasterDataForDropdown("DepartmentList");
+            var roleList = Common.GetMasterDataForDropdown("GetRolesList");
+
+            if (userCode == "")
+            {
+                ViewBag.departments = departmentList;
+                ViewBag.roles = roleList;
+                ViewBag.userCod = userCode;
+                return View();
+            }
+            else
+            {
+                var UserMasterDetails = Common.GetuserDetails(userCode);
+                ViewBag.departments = departmentList;
+                ViewBag.roles = roleList;
+                ViewBag.userCod = userCode;
+                return View(UserMasterDetails);
+            }
+
+
+        }
+        public ActionResult UserRights(int iPK_USRID = 0)
+        {
+            ViewBag.USerRights = GetUserRights(iPK_USRID);
+            ViewBag.ApprovalLevel = GetApprovalLevel(iPK_USRID);
+            ViewBag.mappingid = iPK_USRID;
+            return View();
+        }
+
+        public List<DataControllerModel> GetUserRights(int iPK_USRID)
+        {
+            List<DataControllerModel> obj = new List<DataControllerModel>();
+
+
+            SqlParameter[] param = new SqlParameter[2];
+            param[0] = new SqlParameter("@Fk_BranchId", Convert.ToInt32(Session["iFk_BranchId"].ToString()));
+            param[1] = new SqlParameter("@iPK_USRID", iPK_USRID);
+            List<DataControllerModel> DataControl = new List<DataControllerModel>();
+            DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Admin_CustomRights_User]", param);
+            if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+            {
+                Response.message = "Trip List";
+                Response.statusCode = 200;
+                Response.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                Response.responseCode = 1;
+                if (Response.data != null)
+                    DataControl = JsonConvert.DeserializeObject<List<DataControllerModel>>(Response.data.ToString());
+
+            }
+
+
+            else
+            {
+                Response.message = "No Data Available";
+                Response.statusCode = 1;
+                Response.responseCode = 1;
+            }
+            return DataControl;
+
+
+        }
+        public List<AprovalStage> GetApprovalLevel(int iPK_USRID)
+        {
+            List<AprovalStage> obj = new List<AprovalStage>();
+
+
+            SqlParameter[] param = new SqlParameter[2];
+            param[0] = new SqlParameter("@Fk_BranchId", Convert.ToInt32(Session["iFk_BranchId"].ToString()));
+            param[1] = new SqlParameter("@iPK_USRID", iPK_USRID);
+            List<AprovalStage> DataControl = new List<AprovalStage>();
+            DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Admin_CustomRights_ApprovalLevel]", param);
+            if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+            {
+                Response.message = "Trip List";
+                Response.statusCode = 200;
+                Response.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                Response.responseCode = 1;
+                if (Response.data != null)
+                    DataControl = JsonConvert.DeserializeObject<List<AprovalStage>>(Response.data.ToString());
+
+            }
+
+
+            else
+            {
+                Response.message = "No Data Available";
+                Response.statusCode = 1;
+                Response.responseCode = 1;
+            }
+            return DataControl;
+
+
+        }
+
+        public ActionResult Approvals(int ApprovalID = 0)
+        {
+            if (ApprovalID == 0)
+            {
+                var Menus = CommonController.GetMenusList();
+                ViewBag.Menus = Menus;
+                ViewBag.ApprovalID = ApprovalID;
+                return View();
+            }
+            else
+            {
+                var Menus = CommonController.GetMenusList();
+                ViewBag.Menus = Menus;
+                ViewBag.ApprovalID = ApprovalID;
+                ViewBag.ApprovalData = getApprovalDataForEdit(ApprovalID);
+                ViewBag.ApprovalDataSetup = getApprovalAccountDataForEdit(ApprovalID);
+
+                return View();
+            }
+
+        }
+
+        public ActionResult Index()
+        {
+            ViewBag.ApprovalIdx = GetApprovalData();
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddNewuser(UserMaster userMst)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(userMst);
+                var client = new RestClient(ConfigurationManager.AppSettings["BaseUrl"] + "User/AddNewUser");
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("cache-control", "no-cache");
+                //request.AddHeader("authorization", "bearer " + CurrentSessions.Token + "");
+                request.AddParameter("application/json", json, ParameterType.RequestBody);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("Accept", "application/json");
+                IRestResponse response = client.Execute(request);
+
+                if (response.StatusCode.ToString() == "OK")
+                {
+                    var objResponse = JsonConvert.DeserializeObject<Api_CommonResponse>(response.Content);
+
+                    if (objResponse.message.Contains("Details Already Exists..!"))
+                    {
+                        TempData["IsUserDetailsExists"] = 1;
+                        TempData["msg"] = "User Details Already Exists, Details Not Saved...";
+                        return RedirectToAction("AddNewUserIndex", "User");
+                    }
+                    else
+                    {
+                        TempData["IsUserDetailsExists"] = 0;
+                        TempData["msg"] = "User Details Saved Successfully!";
+                        return RedirectToAction("AddNewUserIndex", "User");
+                    }
+                }
+                else
+                {
+                    TempData["IsUserDetailsExists"] = 1;
+                    TempData["msg"] = "Details Not Saved Due To Some Internal Issues...!";
+                    return RedirectToAction("AddNewUserIndex", "User");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public ActionResult AddNewUserIndex()
+        {
+            var userList = Common.GetUsersListToActiveInactive("CompanyUser", 0);
+
+            ViewBag.users = userList;
+
+            return View();
+        }
+
+
+
+
+        public ActionResult EditProfile()
+        {
+            CommonController common = new CommonController();
+            var userSession = (UserModelSession)Session["UserDetails"];
+
+            var currentUser = CommonController.GetuserDetails(userSession.sUSRCode);
+            // var roleList = common.GetDataForDropdown("Role", 0);
+
+            // ViewBag.roles = roleList;
+            ViewBag.currentUser = currentUser;
+
+            return View();
+        }
+        public ActionResult UpdateUserDetails(UserMasterDetails _userMaster)
+        {
+            var json = JsonConvert.SerializeObject(_userMaster);
+            var client = new RestClient(ConfigurationManager.AppSettings["BaseUrl"] + "User/UpdateuserDetails");
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("cache-control", "no-cache");
+            //request.AddHeader("authorization", "bearer " + CurrentSessions.Token + "");
+            request.AddParameter("application/json", json, ParameterType.RequestBody);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddHeader("Accept", "application/json");
+            IRestResponse response = client.Execute(request);
+            Api_CommonResponse objResponse = new Api_CommonResponse();
+            if (response.StatusCode.ToString() == "OK")
+            {
+                objResponse = JsonConvert.DeserializeObject<Api_CommonResponse>(response.Content);
+            }
+
+
+            return RedirectToAction("AddNewUserIndex", "User");
+
+        }
+
+        public JsonResult ApprovalSave(approvalData data)
+        {
+            try
+            {
+                var aprvlID = 0;
+                SqlParameter[] param = new SqlParameter[10];
+                param[0] = new SqlParameter("@sEntryNo", data.sEntryNo);
+                param[1] = new SqlParameter("@iFk_MenuId", data.iFk_MenuId);
+                param[2] = new SqlParameter("@iFk_SubMnuId", data.iFk_SubMnuId);
+                param[3] = new SqlParameter("@iTrnctnVisbl", data.iTrnctnVisbl);
+                param[4] = new SqlParameter("@bApprvlAppcbl", data.bApprvlAppcbl);
+                param[5] = new SqlParameter("@bValApprvl", data.bValApprvl);
+                param[6] = new SqlParameter("@iModification", data.iModification);
+                param[7] = new SqlParameter("@iFk_YearId", data.iFk_YearId);
+                param[8] = new SqlParameter("@iFk_BrnchId", data.iFk_BrnchId);
+                param[9] = new SqlParameter("@iCrtdBy", data.iCrtdBy);
+
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_APRVCONFMST_Save]", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    aprvlID = Convert.ToInt32(ds.Tables[0].Rows[0]["iPk_ApprvlId"]);
+
+                    if (data.ApprovalList != null && data.ApprovalList.Count > 0)
+                    {
+                        foreach (var item in data.ApprovalList)
+                        {
+                            AccountDetailSave(item, aprvlID);
+                        }
+                    }
+                    Response.responseCode = 0;
+                    Response.message = ds.Tables[0].Rows[0]["Message"].ToString();
+                    Response.statusCode = Convert.ToInt32(ds.Tables[0].Rows[0]["StatusCode"]);
+                }
+                else
+                {
+                    Response.responseCode = 1;
+                    Response.message = $"We are facing server issue at the moment please try again...";
+                    Response.statusCode = -1;
+                    Response.data = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return new JsonResult
+            {
+                Data = new { StatusCode = Response.statusCode, Data = Response, Failure = false, Message = Response.message },
+                ContentEncoding = System.Text.Encoding.UTF8,
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+
+        public string AccountDetailSave(approvalList data, int aprvlID)
+        {
+            var status = "";
+            try
+            {
+                SqlParameter[] param = new SqlParameter[4];
+                param[0] = new SqlParameter("@iFk_ApprvlId", aprvlID);
+                param[1] = new SqlParameter("@sLevel", data.sLevel);
+                param[2] = new SqlParameter("@dFromAmnt", data.dFromAmnt);
+                param[3] = new SqlParameter("@dToAmnt", data.dToAmnt);
+
+                DataSet ds = DBOperation.FillDataSet("USP_Master_APRVCONFDTL_Save", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    status = ds.Tables[0].Rows[0]["Message"].ToString();
+                    Response.statusCode = Convert.ToInt32(ds.Tables[0].Rows[0]["StatusCode"]);
+                }
+                else
+                {
+                    status = "We Are facing some internal issue, Please try again later";
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            return status;
+        }
+
+        //Approval Index
+        public List<approvalListData> GetApprovalData()
+        {
+            var client = new RestClient(ConfigurationManager.AppSettings["BaseUrl"] + "User/GetApprovalData");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("cache-control", "no-cache");
+            //request.AddHeader("authorization", "bearer " + CurrentSessions.Token + "");
+            request.AddParameter("application/json", "", ParameterType.RequestBody);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddHeader("Accept", "application/json");
+            IRestResponse response = client.Execute(request);
+            Api_CommonResponse objResponse = new Api_CommonResponse();
+            List<approvalListData> master = new List<approvalListData>();
+
+            if (response.StatusCode.ToString() == "OK")
+            {
+                objResponse = JsonConvert.DeserializeObject<Api_CommonResponse>(response.Content);
+                if (objResponse.data != null)
+                {
+                    //var serializedObj = JsonConvert.SerializeObject(objResponse.data);
+                    master = JsonConvert.DeserializeObject<List<approvalListData>>(objResponse.data.ToString());
+                }
+            }
+
+            return master;
+
+        }
+
+        public List<approvalListData> getApprovalDataForEdit(int ApprovalID)
+        {
+            SqlParameter[] param = new SqlParameter[1];
+            param[0] = new SqlParameter("@Id", ApprovalID);
+            List<approvalListData> Route = new List<approvalListData>();
+            DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_GetApprovalMasterInfo_Get]", param);
+            if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+            {
+                Response.message = "Item List";
+                Response.statusCode = 200;
+                Response.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                Response.responseCode = 1;
+                if (Response.data != null)
+                    Route = JsonConvert.DeserializeObject<List<approvalListData>>(Response.data.ToString());
+            }
+            else
+            {
+                Response.message = "No Data Available";
+                Response.statusCode = 1;
+                Response.responseCode = 1;
+            }
+            return Route;
+        }
+
+        public List<approvalList> getApprovalAccountDataForEdit(int ApprovalID)
+        {
+            SqlParameter[] param = new SqlParameter[1];
+            param[0] = new SqlParameter("@Id", ApprovalID);
+            List<approvalList> Route = new List<approvalList>();
+            DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_GetApprovalDetailsforEdit_Get]", param);
+            if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+            {
+                Response.message = "Item List";
+                Response.statusCode = 200;
+                Response.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                Response.responseCode = 1;
+                if (Response.data != null)
+                    Route = JsonConvert.DeserializeObject<List<approvalList>>(Response.data.ToString());
+            }
+            else
+            {
+                Response.message = "No Data Available";
+                Response.statusCode = 1;
+                Response.responseCode = 1;
+            }
+            return Route;
+        }
+
+        //Update Approval Detail Table
+
+        public JsonResult AmmountDetailsUpdate(approvalList data)
+        {
+            try
+            {
+                SqlParameter[] param = new SqlParameter[4];
+                param[0] = new SqlParameter("@iPk_ApprvlDetId", data.iPk_ApprvlDetId);
+                param[1] = new SqlParameter("@sLevel", data.sLevel);
+                param[2] = new SqlParameter("@dFromAmnt", data.dFromAmnt);
+                param[3] = new SqlParameter("@dToAmnt", data.dToAmnt);
+
+
+                DataSet ds = DBOperation.FillDataSet("USP_Master_APRVCONFDTL_Update", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    Response.responseCode = 0;
+                    Response.message = ds.Tables[0].Rows[0]["Message"].ToString();
+                    Response.statusCode = Convert.ToInt32(ds.Tables[0].Rows[0]["StatusCode"]);
+                }
+                else
+                {
+                    Response.responseCode = 1;
+                    Response.message = $"We are facing server issue at the moment please try again...";
+                    Response.statusCode = -1;
+                    Response.data = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return new JsonResult
+            {
+                Data = new { StatusCode = Response.statusCode, Data = Response, Failure = false, Message = Response.message },
+                ContentEncoding = System.Text.Encoding.UTF8,
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+
+        //Approval Account Details Save via edit 
+        public JsonResult AmmountDetailsSave(approvalData data)
+        {
+            try
+            {
+                if (data.ApprovalList != null && data.ApprovalList.Count > 0)
+                {
+                    foreach (var item in data.ApprovalList)
+                    {
+                        AccountDetailsSave(item);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return new JsonResult
+            {
+                Data = new { StatusCode = Response.statusCode, Data = Response, Failure = false, Message = Response.message },
+                ContentEncoding = System.Text.Encoding.UTF8,
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+
+        public string AccountDetailsSave(approvalList data)
+        {
+            var status = "";
+            try
+            {
+                SqlParameter[] param = new SqlParameter[4];
+                param[0] = new SqlParameter("@iFk_ApprvlId", data.iFk_ApprvlId);
+                param[1] = new SqlParameter("@sLevel", data.sLevel);
+                param[2] = new SqlParameter("@dFromAmnt", data.dFromAmnt);
+                param[3] = new SqlParameter("@dToAmnt", data.dToAmnt);
+
+                DataSet ds = DBOperation.FillDataSet("USP_Master_APRVCONFDTL_Save", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    status = ds.Tables[0].Rows[0]["Message"].ToString();
+                    Response.statusCode = Convert.ToInt32(ds.Tables[0].Rows[0]["StatusCode"]);
+                }
+                else
+                {
+                    status = "We Are facing some internal issue, Please try again later";
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            return status;
+        }
+
+        public JsonResult UpdateApprovalDetails(approvalData data)
+        {
+            try
+            {
+
+                SqlParameter[] param = new SqlParameter[11];
+                param[0] = new SqlParameter("@iPk_ApprvlId", data.iPk_ApprvlId);
+                param[1] = new SqlParameter("@sEntryNo", data.sEntryNo);
+                param[2] = new SqlParameter("@iFk_MenuId", data.iFk_MenuId);
+                param[3] = new SqlParameter("@iFk_SubMnuId", data.iFk_SubMnuId);
+                param[4] = new SqlParameter("@iTrnctnVisbl", data.iTrnctnVisbl);
+                param[5] = new SqlParameter("@bApprvlAppcbl", data.bApprvlAppcbl);
+                param[6] = new SqlParameter("@bValApprvl", data.bValApprvl);
+                param[7] = new SqlParameter("@iModification", data.iModification);
+                param[8] = new SqlParameter("@iFk_YearId", data.iFk_YearId);
+                param[9] = new SqlParameter("@iFk_BrnchId", data.iFk_BrnchId);
+                param[10] = new SqlParameter("@iCrtdBy", data.iCrtdBy);
+
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_APRVCONFMST_Update]", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    Response.responseCode = 0;
+                    Response.message = ds.Tables[0].Rows[0]["Message"].ToString();
+                    Response.statusCode = Convert.ToInt32(ds.Tables[0].Rows[0]["StatusCode"]);
+                }
+                else
+                {
+                    Response.responseCode = 1;
+                    Response.message = $"We are facing server issue at the moment please try again...";
+                    Response.statusCode = -1;
+                    Response.data = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return new JsonResult
+            {
+                Data = new { StatusCode = Response.statusCode, Data = Response, Failure = false, Message = Response.message },
+                ContentEncoding = System.Text.Encoding.UTF8,
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+
+        //Delete Approval Index 
+
+        public JsonResult DeleteApprovalIndexData(approvalData data)
+        {
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@iPk_ApprvlId", data.iPk_ApprvlId);
+
+                DataSet ds = DBOperation.FillDataSet("USP_Master_APRVMST_Delete", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    Response.responseCode = 0;
+                    Response.message = ds.Tables[0].Rows[0]["Message"].ToString();
+                    Response.statusCode = Convert.ToInt32(ds.Tables[0].Rows[0]["StatusCode"]);
+                }
+                else
+                {
+                    Response.responseCode = 1;
+                    Response.message = $"We are facing server issue at the moment please try again...";
+                    Response.statusCode = -1;
+                    Response.data = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return new JsonResult
+            {
+                Data = new { StatusCode = Response.statusCode, Data = Response, Failure = false, Message = Response.message },
+                ContentEncoding = System.Text.Encoding.UTF8,
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+
+
+
+        [HttpGet]
+        [Route("GetSubCategory")]
+        public Api_CommonResponse GetSubCategory(int iFk_Category)
+        {
+            Api_CommonResponse res = new Api_CommonResponse();
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@iFk_Category", iFk_Category);
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_SubCtgry_Get]", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    res.statusCode = 1;
+                    res.responseCode = 0;
+                    res.message = "Data Fetched Successfully...";
+                    res.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                }
+                else
+                {
+                    res.statusCode = 1;
+                    res.responseCode = 0;
+                    res.message = "No Data Available...";
+                }
+            }
+            catch (Exception e)
+            {
+                res.statusCode = 0;
+                res.responseCode = 0;
+                res.message = e.Message;
+            }
+            return res;
+        }
+        [HttpGet]
+        [Route("GetCntrctDtls")]
+        public Api_CommonResponse GetCntrctDtls(int id)
+        {
+            Api_CommonResponse res = new Api_CommonResponse();
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@id", id);
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_CntrctDtl_Get]", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    res.statusCode = 1;
+                    res.responseCode = 0;
+                    res.message = "Data Fetched Successfully...";
+                    res.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                }
+                else
+                {
+                    res.statusCode = 1;
+                    res.responseCode = 0;
+                    res.message = "No Data Available...";
+                }
+            }
+            catch (Exception e)
+            {
+                res.statusCode = 0;
+                res.responseCode = 0;
+                res.message = e.Message;
+            }
+            return res;
+        }
+
+        [Route("GetDriverDetails")]
+        [HttpGet]
+        public Api_CommonResponse GetDriverDetails(int id)
+        {
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@id", id);
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_DRVMST_Get]", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    Response.statusCode = 1;
+                    Response.responseCode = 0;
+                    Response.message = "Data Fetched Successfully...";
+                    Response.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                }
+                else
+                {
+                    Response.statusCode = 1;
+                    Response.responseCode = 0;
+                    Response.message = "No Data Available...";
+                }
+            }
+            catch (Exception e)
+            {
+                Response.statusCode = 0;
+                Response.responseCode = 0;
+                Response.message = e.Message;
+            }
+            return Response;
+        }
+
+        [Route("GetTrailerDetails")]
+        [HttpGet]
+        public Api_CommonResponse GetTrailerDetails(int id)
+        {
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@id", id);
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_GetTrlMst_Get]", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    Response.statusCode = 1;
+                    Response.responseCode = 0;
+                    Response.message = "Data Fetched Successfully...";
+                    Response.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                }
+                else
+                {
+                    Response.statusCode = 1;
+                    Response.responseCode = 0;
+                    Response.message = "No Data Available...";
+                }
+            }
+            catch (Exception e)
+            {
+                Response.statusCode = 0;
+                Response.responseCode = 0;
+                Response.message = e.Message;
+            }
+            return Response;
+        }
+
+        //trip expense *****************
+
+        [HttpGet]
+        [Route("GetcardNumber")]
+        public Api_CommonResponse GetcardNumber(int id)
+        {
+            Api_CommonResponse res = new Api_CommonResponse();
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@SelectedCardTypeId", id);
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_GetCardNumbers_Get]", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    res.statusCode = 1;
+                    res.responseCode = 0;
+                    res.message = "Data Fetched Successfully...";
+                    res.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                }
+                else
+                {
+                    res.statusCode = 1;
+                    res.responseCode = 0;
+                    res.message = "No Data Available...";
+                }
+            }
+            catch (Exception e)
+            {
+                res.statusCode = 0;
+                res.responseCode = 0;
+                res.message = e.Message;
+            }
+            return res;
+        }
+
+        //get entry data
+        [Route("EntryDate")]
+        [HttpGet]
+        public Api_CommonResponse EntryDate(int id)
+        {
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@id", id);
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_GetEntrydate_Get]", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    Response.statusCode = 1;
+                    Response.responseCode = 0;
+                    Response.message = "Data Fetched Successfully...";
+                    Response.data = JsonConvert.SerializeObject(ds.Tables[0]);
+                }
+                else
+                {
+                    Response.statusCode = 1;
+                    Response.responseCode = 0;
+                    Response.message = "No Data Available...";
+                }
+            }
+            catch (Exception e)
+            {
+                Response.statusCode = 0;
+                Response.responseCode = 0;
+                Response.message = e.Message;
+            }
+            return Response;
+        }
+
+
+        //**************************************addnewuser
+
+        [HttpPost]
+        public JsonResult UpdateAddUserDetails(UserMaster userMst)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(userMst);
+                var client = new RestClient(ConfigurationManager.AppSettings["BaseUrl"] + "User/UpdateAddUserDetails");
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("cache-control", "no-cache");
+                request.AddParameter("application/json", json, ParameterType.RequestBody);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddHeader("Accept", "application/json");
+                IRestResponse response = client.Execute(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var objResponse = JsonConvert.DeserializeObject<Api_CommonResponse>(response.Content);
+
+                    if (objResponse.message.Contains("Details Already Exists..!"))
+                    {
+                        return Json(new { success = false, Message = "User Details Already Exists, Details Not Saved..." });
+                    }
+                    else
+                    {
+                        return Json(new { success = true, Message = "User Details Saved Successfully!" });
+                    }
+                }
+                else
+                {
+                    return Json(new { success = false, Message = "Details Not Saved Due To Some Internal Issues...!" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, Message = $"Error: {ex.Message}" });
+            }
+        }
+
+
+
+        public JsonResult DeactivateParty(UserMaster data)
+        {
+            try
+            {
+                SqlParameter[] param = new SqlParameter[3];
+                param[0] = new SqlParameter("@sUSRCode", data.sUSRCode);
+                param[1] = new SqlParameter("@dtDactvdate", data.dtDactvdate);
+                param[2] = new SqlParameter("@iDactv", data.iDactv);
+
+                DataSet ds = DBOperation.FillDataSet("USP_MASTER_DeactiveUser_Update", param);
+                if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
+                {
+                    Response.responseCode = 0;
+                    Response.message = ds.Tables[0].Rows[0]["Message"].ToString();
+                    Response.statusCode = Convert.ToInt32(ds.Tables[0].Rows[0]["StatusCode"]);
+                }
+                else
+                {
+                    Response.responseCode = 1;
+                    Response.message = $"We are facing server issue at the moment please try again...";
+                    Response.statusCode = -1;
+                    Response.data = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return Json(new
+            {
+                StatusCode = Response.statusCode,
+                Data = Response,
+                Failure = Response.statusCode != 200,
+                Message = Response.message
+            }, JsonRequestBehavior.AllowGet);
+        }
+    }
+
+}
