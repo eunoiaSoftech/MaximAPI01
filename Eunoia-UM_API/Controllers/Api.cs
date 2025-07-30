@@ -296,5 +296,105 @@ namespace Eunoia_UM_API.Controllers
             return api_Response;
         }
 
+        [HttpPost]
+        [Route("SaveAccidentClaim")]
+        public async Task<IActionResult> SaveAccidentClaim([FromForm] AccidentClaimLogModel input, [FromForm] string CraneDetailsJson)
+        {
+            try
+            {
+                List<CraneDetails>? craneDetails = null;
+                if (!string.IsNullOrEmpty(CraneDetailsJson))
+                {
+                    craneDetails = JsonConvert.DeserializeObject<List<CraneDetails>>(CraneDetailsJson);
+                }
+                var parameters = new[]
+                {
+                    new SqlParameter("@sCurrentLocation", input.sCurrentLocation ?? (object)DBNull.Value),
+                    new SqlParameter("@dtDateOfAccident", input.dtDateOfAccident),
+                    new SqlParameter("@sPersonVisited", input.sPersonVisited ?? (object)DBNull.Value),
+                    new SqlParameter("@dSettlementAmount", input.dSettlementAmount),
+                    new SqlParameter("@dDebitToDriverAmount", input.dDebitToDriverAmount),
+                    new SqlParameter("@sAccidentRemark", input.sAccidentRemark ?? (object)DBNull.Value),
+                    new SqlParameter("@sOnSpotPersonSignature", input.sOnSpotPersonSignature ?? (object)DBNull.Value),
+                    new SqlParameter("@sSpotPersonSignature", input.sSpotPersonSignature ?? (object)DBNull.Value),
+                    new SqlParameter("@bIsConfirmed", input.bIsConfirmed)
+                };
+
+                var ds = DBOperation.FillDataSet("dbo.USP_MobileApp_AccidentClaim_Save", parameters);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    int accidentClaimLogId = Convert.ToInt32(ds.Tables[0].Rows[0]["iPk_AccidentClaimLogId"]);
+
+                    if (craneDetails != null && craneDetails.Count > 0)
+                    {
+                        foreach (var crane in craneDetails)
+                        {
+                            SqlParameter[] craneParams = new SqlParameter[]
+                            {
+                                new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
+                                new SqlParameter("@sCraneType", crane.sCraneType ?? (object)DBNull.Value),
+                                new SqlParameter("@iCraneCount", crane.iCraneCount ?? (object)DBNull.Value),
+                                new SqlParameter("@dCraneAmount", crane.dCraneAmount ?? (object)DBNull.Value)
+                            };
+                            DBOperation.FillDataSet("dbo.USP_MobileApp_CraneDetailAccidentClaim_Save", craneParams);
+                        }
+                    }
+
+                    // If there are images then save 
+                    if (input.Images != null && input.Images.Count > 0)
+                    {
+                        string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads/AccidentClaimImages");
+                        Directory.CreateDirectory(uploadsFolder);
+
+                        foreach (var file in input.Images)
+                        {
+                            if (file.Length > 0)
+                            {
+                                string uniqueFileName = Guid.NewGuid() + "_" + file.FileName;
+                                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                                using (var stream = new FileStream(filePath, FileMode.Create))
+                                {
+                                    await file.CopyToAsync(stream);
+                                }
+
+                                SqlParameter[] imgParam = new SqlParameter[]
+                                {
+                                    new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
+                                    new SqlParameter("@sImagePath", filePath)
+                                };
+                                DBOperation.FillDataSet("dbo.USP_MobileApp_AccidentClaim_Attachment_Save", imgParam);
+                            }
+                        }
+                    }
+
+                    api_Response.statusCode = 0;
+                    api_Response.responseCode = 200;
+                    api_Response.message = "Accident claim log saved successfully.";
+                    api_Response.data = new { AccidentClaimLogId = accidentClaimLogId };
+                    api_Response.data1 = null;
+                }
+                else
+                {
+                    api_Response.statusCode = 1;
+                    api_Response.responseCode = 500;
+                    api_Response.message = "Failed to save accident claim log.";
+                    api_Response.data = null;
+                    api_Response.data1 = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                api_Response.statusCode = 1;
+                api_Response.responseCode = 500;
+                api_Response.message = "Internal server error: " + ex.Message;
+                api_Response.data = null;
+                api_Response.data1 = null;
+            }
+
+            return Ok(api_Response);  
+        }
+
     }
 }
