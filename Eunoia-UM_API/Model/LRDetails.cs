@@ -24,6 +24,6 @@
         public bool? bIsReceipt { get; set; }
         public bool? bIsPosting { get; set; }
         public DateTime? dtAdvanceDt { get; set; }
-        public string? sRouteName { get; set; }
+        public string sRouteName { get; set; }
     }
 }
