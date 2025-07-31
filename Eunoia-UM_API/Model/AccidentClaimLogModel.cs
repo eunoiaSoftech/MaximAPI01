@@ -1,4 +1,6 @@
-﻿namespace Eunoia_UM_API.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Eunoia_UM_API.Model
 {
     public class AccidentClaimLogModel
     {
@@ -12,9 +14,11 @@
         public string? sSpotPersonSignature { get; set; }    // base64 string or path
         public bool? bIsConfirmed { get; set; }
 
-        // For File upload
-        public List<IFormFile>? Images { get; set; }
-        //public List<CraneDetails>? CraneDetails { get; set; }
+        //// For File upload
+        //[Required]
+        //public List<IFormFile> Images { get; set; }
+        [Required]
+        public List<CraneDetails> CraneDetails { get; set; }
     }
     public class CraneDetails
     {

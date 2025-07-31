@@ -2,6 +2,7 @@
 using Eunoia_UM_API.Model;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -298,27 +299,29 @@ namespace Eunoia_UM_API.Controllers
 
         [HttpPost]
         [Route("SaveAccidentClaim")]
-        public async Task<IActionResult> SaveAccidentClaim([FromForm] AccidentClaimLogModel input, [FromForm] string CraneDetailsJson)
+        //public async Task<Api_CommonResponse> SaveAccidentClaim(AccidentClaimLogModel input, List<IFormFile> Images)
+        public async Task<Api_CommonResponse> SaveAccidentClaim([FromForm] List<IFormFile> files, [Required][FromForm] string jsonData)
         {
             try
             {
-                List<CraneDetails>? craneDetails = null;
-                if (!string.IsNullOrEmpty(CraneDetailsJson))
+                AccidentClaimLogModel input = null;
+                if (jsonData != null)
                 {
-                    craneDetails = JsonConvert.DeserializeObject<List<CraneDetails>>(CraneDetailsJson);
+                    input = JsonConvert.DeserializeObject<AccidentClaimLogModel>(jsonData);
+
                 }
                 var parameters = new[]
                 {
-                    new SqlParameter("@sCurrentLocation", input.sCurrentLocation ?? (object)DBNull.Value),
-                    new SqlParameter("@dtDateOfAccident", input.dtDateOfAccident),
-                    new SqlParameter("@sPersonVisited", input.sPersonVisited ?? (object)DBNull.Value),
-                    new SqlParameter("@dSettlementAmount", input.dSettlementAmount),
-                    new SqlParameter("@dDebitToDriverAmount", input.dDebitToDriverAmount),
-                    new SqlParameter("@sAccidentRemark", input.sAccidentRemark ?? (object)DBNull.Value),
-                    new SqlParameter("@sOnSpotPersonSignature", input.sOnSpotPersonSignature ?? (object)DBNull.Value),
-                    new SqlParameter("@sSpotPersonSignature", input.sSpotPersonSignature ?? (object)DBNull.Value),
-                    new SqlParameter("@bIsConfirmed", input.bIsConfirmed)
-                };
+            new SqlParameter("@sCurrentLocation", input.sCurrentLocation ?? (object)DBNull.Value),
+            new SqlParameter("@dtDateOfAccident", input.dtDateOfAccident),
+            new SqlParameter("@sPersonVisited", input.sPersonVisited ?? (object)DBNull.Value),
+            new SqlParameter("@dSettlementAmount", input.dSettlementAmount),
+            new SqlParameter("@dDebitToDriverAmount", input.dDebitToDriverAmount),
+            new SqlParameter("@sAccidentRemark", input.sAccidentRemark ?? (object)DBNull.Value),
+            new SqlParameter("@sOnSpotPersonSignature", input.sOnSpotPersonSignature ?? (object)DBNull.Value),
+            new SqlParameter("@sSpotPersonSignature", input.sSpotPersonSignature ?? (object)DBNull.Value),
+            new SqlParameter("@bIsConfirmed", input.bIsConfirmed)
+        };
 
                 var ds = DBOperation.FillDataSet("dbo.USP_MobileApp_AccidentClaim_Save", parameters);
 
@@ -326,28 +329,28 @@ namespace Eunoia_UM_API.Controllers
                 {
                     int accidentClaimLogId = Convert.ToInt32(ds.Tables[0].Rows[0]["iPk_AccidentClaimLogId"]);
 
-                    if (craneDetails != null && craneDetails.Count > 0)
+                    if (input.CraneDetails != null && input.CraneDetails.Count > 0)
                     {
-                        foreach (var crane in craneDetails)
+                        foreach (var crane in input.CraneDetails)
                         {
                             SqlParameter[] craneParams = new SqlParameter[]
                             {
-                                new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
-                                new SqlParameter("@sCraneType", crane.sCraneType ?? (object)DBNull.Value),
-                                new SqlParameter("@iCraneCount", crane.iCraneCount ?? (object)DBNull.Value),
-                                new SqlParameter("@dCraneAmount", crane.dCraneAmount ?? (object)DBNull.Value)
+                        new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
+                        new SqlParameter("@sCraneType", crane.sCraneType ?? (object)DBNull.Value),
+                        new SqlParameter("@iCraneCount", crane.iCraneCount ?? (object)DBNull.Value),
+                        new SqlParameter("@dCraneAmount", crane.dCraneAmount ?? (object)DBNull.Value)
                             };
                             DBOperation.FillDataSet("dbo.USP_MobileApp_CraneDetailAccidentClaim_Save", craneParams);
                         }
                     }
 
                     // If there are images then save 
-                    if (input.Images != null && input.Images.Count > 0)
+                    if (files != null && files.Count > 0)
                     {
                         string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads/AccidentClaimImages");
                         Directory.CreateDirectory(uploadsFolder);
 
-                        foreach (var file in input.Images)
+                        foreach (var file in files)
                         {
                             if (file.Length > 0)
                             {
@@ -361,8 +364,8 @@ namespace Eunoia_UM_API.Controllers
 
                                 SqlParameter[] imgParam = new SqlParameter[]
                                 {
-                                    new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
-                                    new SqlParameter("@sImagePath", filePath)
+                            new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
+                            new SqlParameter("@sImagePath", filePath)
                                 };
                                 DBOperation.FillDataSet("dbo.USP_MobileApp_AccidentClaim_Attachment_Save", imgParam);
                             }
@@ -393,8 +396,7 @@ namespace Eunoia_UM_API.Controllers
                 api_Response.data1 = null;
             }
 
-            return Ok(api_Response);  
+            return api_Response;
         }
-
     }
 }
