@@ -398,5 +398,41 @@ namespace Eunoia_UM_API.Controllers
 
             return api_Response;
         }
+
+        [HttpGet]
+        [Route("GetCityNames")]
+        public Api_CommonResponse GetCityNames()
+        {
+            try
+            {
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_GetCityNames]", null);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    api_Response.responseCode = 200;
+                    api_Response.message = "Data retrieved successfully";
+                    api_Response.statusCode = 0;
+
+                    api_Response.data = JsonConvert.DeserializeObject<List<CityNameModel>>(
+                        JsonConvert.SerializeObject(ds.Tables[0]));
+                }
+                else
+                {
+                    api_Response.responseCode = 404;
+                    api_Response.message = "No records found";
+                    api_Response.statusCode = -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                api_Response.responseCode = 500;
+                api_Response.message = "Internal server error: " + ex.Message;
+                api_Response.statusCode = -1;
+            }
+
+            return api_Response;
+        }
+
+
     }
 }
