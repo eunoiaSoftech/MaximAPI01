@@ -26,5 +26,11 @@ namespace Eunoia_UM_API.Model
         public int? iCraneCount { get; set; }
         public decimal? dCraneAmount { get; set; }
     }
+    public class AccidentDetailsVehicleNo
+    {
+        public string AccidentNo { get; set; }
+        public string AccidentDate { get; set; }
+
+    }
 
 }

@@ -400,6 +400,44 @@ namespace Eunoia_UM_API.Controllers
         }
 
         [HttpGet]
+        [Route("GetAccidentDetailsByVehicleNo")]
+        public Api_CommonResponse GetAccidentDetailsByVehicleNo(int vehicleNo)
+        {
+            try
+            {
+                SqlParameter[] param = new SqlParameter[1];
+                param[0] = new SqlParameter("@VehicleNo", vehicleNo);
+
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_GetAccidentsByVehicleNo]", param);
+
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    api_Response.responseCode = 200;
+                    api_Response.message = "Data retrieved successfully";
+                    api_Response.statusCode = 0;
+                    api_Response.data1 = JsonConvert.DeserializeObject<List<AccidentDetailsVehicleNo>>(
+                        JsonConvert.SerializeObject(ds.Tables[0])
+                    );
+                }
+                else
+                {
+                    api_Response.responseCode = 404;
+                    api_Response.message = "No acccident details found for the given vehicle ID";
+                    api_Response.statusCode = -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log ex if needed
+                api_Response.responseCode = 500;
+                api_Response.message = "Internal server error: " + ex.Message;
+                api_Response.statusCode = -1;
+            }
+
+            return api_Response;
+        }
+
+        [HttpGet]
         [Route("GetCityNames")]
         public Api_CommonResponse GetCityNames()
         {
