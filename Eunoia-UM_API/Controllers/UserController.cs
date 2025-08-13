@@ -1,16 +1,12 @@
 ﻿using Eunoia_UM_API.Helper;
 using Eunoia_UM_API.Model;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Crypto.Generators;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
+using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using System.Text;
 
@@ -20,16 +16,7 @@ namespace Eunoia_UM_API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        private readonly JwtSettings _jwtSettings;
-
         Api_CommonResponse api_Response = new Api_CommonResponse();
-
-        public UserController(IConfiguration configuration, JwtSettings jwtSettings)
-        {
-            _configuration = configuration;
-            _jwtSettings = jwtSettings;
-        }
 
         [HttpPost]
         [Route("AddNewUser")]
@@ -364,6 +351,13 @@ namespace Eunoia_UM_API.Controllers
             return status;
         }
 
+        private readonly IConfiguration Configuration;
+
+        public UserController(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
         [HttpPost]
         [Route("userLogin")]
         public Api_CommonResponse Login(LoginModal login)
@@ -379,59 +373,41 @@ namespace Eunoia_UM_API.Controllers
                 if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
                 {
                     string username = login.Username;
-                    int userId = Convert.ToInt32(ds.Tables[0].Rows[0]["iPK_USRID"]);
-
-                    //  JWT generate
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, username),
-                        new Claim(ClaimTypes.Role, "admin") // or role from the DB
-                    };
-
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(claims),
-                        Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwtSettings.TokenExpiryMinutes)),
-                        Issuer = _jwtSettings.Issuer,
-                        Audience = _jwtSettings.Audience,
-                        SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
-                    };
-
-
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-                    var jwt = tokenHandler.WriteToken(token);
-
-                    string clientIP = GetClientIpAddress();
-
-                    //  Save token + expiry date to DB
-                    DateTime expiry = DateTime.UtcNow.AddDays(_jwtSettings.TokenExpiryDays);
-                    InsertJwtToken(userId, jwt, expiry, clientIP);
-
-                    // Save login history
-                    InsertUserLoginHistory(userId, clientIP);
-
                     api_Response.responseCode = 0;
                     api_Response.message = ds.Tables[0].Rows[0]["Message"].ToString();
                     api_Response.data = JsonConvert.SerializeObject(ds.Tables[0]);
                     api_Response.statusCode = Convert.ToInt32(ds.Tables[0].Rows[0]["StatusCode"].ToString());
                     api_Response.data1 = JsonConvert.DeserializeObject<List<LoginMobile>>(api_Response.data.ToString());
                     api_Response.Rights = JsonConvert.DeserializeObject<List<RightsDet>>(JsonConvert.SerializeObject(ds.Tables[1]).ToString());
+                    //                var jwtSettings = Configuration.GetSection("JwtSettings");
+                    //                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]));
+                    //                var claims = new List<Claim>
+                    //{
+                    //new Claim(ClaimTypes.Name, username),
+                    //new Claim(ClaimTypes.Role, "admin")
+                    //};
+                    //                var tokenDescriptor = new SecurityTokenDescriptor
+                    //                {
+                    //                    Subject = new ClaimsIdentity(claims),
 
-                    api_Response.TokenId = jwt;
+                    //                    Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(jwtSettings["TokenExpiryMinutes"])),
+                    //                    Issuer = jwtSettings["Issuer"],
+                    //                    Audience = jwtSettings["Audience"],
+                    //                    SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
+                    //                };
+
+
+
+                    //                var tokenHandler = new JwtSecurityTokenHandler();
+                    //                var token = tokenHandler.CreateToken(tokenDescriptor);
+                    //                var jwt = tokenHandler.WriteToken(token);
+                    //api_Response.TokanId = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwibmJmIjoxNzQ5MDE2MzA2LCJleHAiOjE3NDkwMTk5MDYsImlhdCI6MTc0OTAxNjMwNiwiaXNzIjoiaHR0cHM6Ly80Ny4yNDcuMTgxLjY6ODA4OS9hcGkiLCJhdWQiOiJjb20uZXVub2lhLmxvZ2lzdGljc19hcHAifQ._j3bsgwzuedL4ofqDvNK8dfH2OGPvFsGBk0VkWZZbLQ";
+
                 }
                 else
                 {
-
-                    //api_Response.responseCode = -1;
-                    //api_Response.message = ds.Tables[0].Rows[0]["Message"].ToString();
-                    //api_Response.statusCode = -1;
-
                     api_Response.responseCode = -1;
-                    api_Response.message = (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                        ? ds.Tables[0].Rows[0]["Message"].ToString()
-                        : "Invalid login or system error.";
+                    api_Response.message = ds.Tables[0].Rows[0]["Message"].ToString();
                     api_Response.statusCode = -1;
                 }
             }
@@ -474,7 +450,6 @@ namespace Eunoia_UM_API.Controllers
             return api_Response;
         }
 
-        [Authorize]
         [HttpGet]
         [Route("GetuserMasterDetails")]
         public Api_CommonResponse GetuserMasterDetails(string userID)
@@ -832,45 +807,6 @@ namespace Eunoia_UM_API.Controllers
             }
             return api_Response;
         }
-
-        private void InsertJwtToken(int userId, string jwt, DateTime expiry, string clientIP)
-        {
-            SqlParameter[] param = new SqlParameter[]
-            {
-                new SqlParameter("@iUserId", userId),
-                new SqlParameter("@sJwtToken", jwt),
-                new SqlParameter("@dtExpiry", expiry),
-                new SqlParameter("@sIPAddress", clientIP)
-            };
-
-            DBOperation.ExecuteQuery("USP_InsertJWTToken", param);
-        }
-
-        private string GetClientIpAddress()
-        {
-            // Attempt to get client IP from 'X-Forwarded-For' header (used by proxies/load balancers)
-            string ip = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-
-            if (string.IsNullOrEmpty(ip))
-            {
-                // Fallback: Get the remote IP from the connection context
-                ip = HttpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
-            }
-
-            return ip;
-        }
-
-        private void InsertUserLoginHistory(int userId, string clientIP)
-        {
-            SqlParameter[] param = new SqlParameter[]
-            {
-                new SqlParameter("@iUserId", userId),
-                new SqlParameter("@sIPAddress", clientIP)
-            };
-
-            DBOperation.ExecuteQuery("USP_InsertUserLoginIPLogs", param);
-        }
-
 
     }
 }
