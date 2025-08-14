@@ -30,6 +30,8 @@ namespace Eunoia_UM_API.Model
     {
         public string AccidentNo { get; set; }
         public string AccidentDate { get; set; }
+        public string AccidentLocation{ get; set; }
+        public string CityName{ get; set; }
 
     }
 
