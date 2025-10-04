@@ -312,16 +312,28 @@ namespace Eunoia_UM_API.Controllers
                 }
                 var parameters = new[]
                 {
-            new SqlParameter("@sCurrentLocation", input.sCurrentLocation ?? (object)DBNull.Value),
-            new SqlParameter("@dtDateOfAccident", input.dtDateOfAccident),
-            new SqlParameter("@sPersonVisited", input.sPersonVisited ?? (object)DBNull.Value),
-            new SqlParameter("@dSettlementAmount", input.dSettlementAmount),
-            new SqlParameter("@dDebitToDriverAmount", input.dDebitToDriverAmount),
-            new SqlParameter("@sAccidentRemark", input.sAccidentRemark ?? (object)DBNull.Value),
-            new SqlParameter("@sOnSpotPersonSignature", input.sOnSpotPersonSignature ?? (object)DBNull.Value),
-            new SqlParameter("@sSpotPersonSignature", input.sSpotPersonSignature ?? (object)DBNull.Value),
-            new SqlParameter("@bIsConfirmed", input.bIsConfirmed)
-        };
+                    new SqlParameter("@sCurrentLocation", input.sCurrentLocation ?? (object)DBNull.Value),
+                    new SqlParameter("@sDriverName", input.sDriverName ?? (object)DBNull.Value),
+                    new SqlParameter("@sCityName", input.sCityName ?? (object)DBNull.Value),
+                    new SqlParameter("@sMobileNo", input.sMobileNo ?? (object)DBNull.Value),
+                    new SqlParameter("@sLicenseNo", input.sLicenseNo ?? (object)DBNull.Value),
+                    new SqlParameter("@dtLicenseValidity", input.dtLicenseValidity ?? (object)DBNull.Value),
+                    new SqlParameter("@sDriverCode", input.sDriverCode ?? (object)DBNull.Value),
+                    new SqlParameter("@sTripId", input.sTripId ?? (object)DBNull.Value),
+                    new SqlParameter("@sEwayBillNo", input.sEwayBillNo ?? (object)DBNull.Value),
+                    new SqlParameter("@dtEwayExpiry", input.dtEwayExpiry ?? (object)DBNull.Value),
+                    new SqlParameter("@dtEntryDate", input.dtEntryDate ?? (object)DBNull.Value),
+                    new SqlParameter("@iAccidentNo", input.iAccidentNo ?? (object)DBNull.Value),
+                    new SqlParameter("@sVehicleNo", input.sVehicleNo ?? (object)DBNull.Value),
+                    new SqlParameter("@dtDateOfAccident", input.dtDateOfAccident ?? (object)DBNull.Value),
+                    new SqlParameter("@sPersonVisited", input.sPersonVisited ?? (object)DBNull.Value),
+                    new SqlParameter("@dSettlementAmount", input.dSettlementAmount ?? (object)DBNull.Value),
+                    new SqlParameter("@dDebitToDriverAmount", input.dDebitToDriverAmount ?? (object)DBNull.Value),
+                    new SqlParameter("@sAccidentRemark", input.sAccidentRemark ?? (object)DBNull.Value),
+                    new SqlParameter("@sOnSpotPersonSignature", input.sOnSpotPersonSignature ?? (object)DBNull.Value),
+                    new SqlParameter("@sSpotPersonSignature", input.sSpotPersonSignature ?? (object)DBNull.Value),
+                    new SqlParameter("@bIsConfirmed", input.bIsConfirmed ?? false)
+                };
 
                 var ds = DBOperation.FillDataSet("dbo.USP_MobileApp_AccidentClaim_Save", parameters);
 
