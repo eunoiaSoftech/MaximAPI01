@@ -8,8 +8,6 @@ using System.Data.SqlClient;
 
 namespace Eunoia_UM_API.Controllers
 {
-
-
     [Route("api/[controller]")]
     [ApiController]
     public class Api : Controller
@@ -155,7 +153,6 @@ namespace Eunoia_UM_API.Controllers
         {
             try
             {
-
                 SqlParameter[] param = new SqlParameter[2];
                 param[0] = new SqlParameter("@iFk_UserType", iFk_UserType);
                 param[1] = new SqlParameter("@iFk_UserId", iFk_UserId);
@@ -326,7 +323,7 @@ namespace Eunoia_UM_API.Controllers
                     new SqlParameter("@iAccidentNo", input.iAccidentNo ?? (object)DBNull.Value),
                     new SqlParameter("@sVehicleNo", input.sVehicleNo ?? (object)DBNull.Value),
                     new SqlParameter("@dtDateOfAccident", input.dtDateOfAccident ?? (object)DBNull.Value),
-                    new SqlParameter("@sPersonVisited", input.sPersonVisited ?? (object)DBNull.Value),
+                    new SqlParameter("@sPersonVisited", input.iPersonVisitedId?.ToString() ?? (object)DBNull.Value),
                     new SqlParameter("@dSettlementAmount", input.dSettlementAmount ?? (object)DBNull.Value),
                     new SqlParameter("@dDebitToDriverAmount", input.dDebitToDriverAmount ?? (object)DBNull.Value),
                     new SqlParameter("@sAccidentRemark", input.sAccidentRemark ?? (object)DBNull.Value),
@@ -339,7 +336,45 @@ namespace Eunoia_UM_API.Controllers
 
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    int accidentClaimLogId = Convert.ToInt32(ds.Tables[0].Rows[0]["iPk_AccidentClaimLogId"]);
+
+                    var dataTable = ds.Tables[0];
+                    var row = dataTable.Rows[0];
+                    // Optionally map DataRow to a model or dictionary to return
+                    //var savedRecord = new Dictionary<string, object>();
+
+                    //foreach (System.Data.DataColumn col in dataTable.Columns)
+                    //{
+                    //    savedRecord[col.ColumnName] = dataTable.Rows[0][col];
+                    //}
+
+                    var savedRecord = new AccidentClaimResponseModel
+                    {
+                        accidentClaimId = Convert.ToInt32(row["iPk_AccidentClaimLogId"]),
+                        vehicleNo = row["sVehicleNo"]?.ToString(),
+                        accidentNo = Convert.ToInt32(row["iAccidentNo"]),
+                        accidentDate = Convert.ToDateTime(row["dtDateOfAccident"]),
+                        accidentLocation = row["sCurrentLocation"]?.ToString(),
+                        cityName = row["sCityName"]?.ToString(),
+                        tripId = row["sTripId"]?.ToString(),
+                        driverName = row["sDriverName"]?.ToString(),
+                        driverId = row["sDriverCode"]?.ToString(),
+                        personVisited = Convert.ToInt32(row["sPersonVisited"]),
+                        settlementAmount = Convert.ToDecimal(row["dSettlementAmount"]),
+                        debitToDriverAmount = Convert.ToDecimal(row["dDebitToDriverAmount"]),
+                        remark = row["sAccidentRemark"]?.ToString(),
+                        onSpotSignature = row["sOnSpotPersonSignature"]?.ToString(),
+                        spotSignature = row["sSpotPersonSignature"]?.ToString(),
+                        confirmation = Convert.ToBoolean(row["bIsConfirmed"]),
+
+                        //mobileNo = row["sMobileNo"]?.ToString(),
+                        licenseNo = row["sLicenseNo"]?.ToString(),
+                        licenseValidity = Convert.ToDateTime(row["dtLicenseValidity"]),
+                        ewayBillNo = row["sEwayBillNo"]?.ToString(),
+                        ewayExpiry = Convert.ToDateTime(row["dtEwayExpiry"]),
+                        entryDate = Convert.ToDateTime(row["dtEntryDate"]),
+                    };
+
+                    int accidentClaimLogId = savedRecord.accidentClaimId;
 
                     if (input.CraneDetails != null && input.CraneDetails.Count > 0)
                     {
@@ -347,13 +382,38 @@ namespace Eunoia_UM_API.Controllers
                         {
                             SqlParameter[] craneParams = new SqlParameter[]
                             {
-                        new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
-                        new SqlParameter("@sCraneType", crane.sCraneType ?? (object)DBNull.Value),
-                        new SqlParameter("@iCraneCount", crane.iCraneCount ?? (object)DBNull.Value),
-                        new SqlParameter("@dCraneAmount", crane.dCraneAmount ?? (object)DBNull.Value)
+                                new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
+                                new SqlParameter("@sCraneType", crane.sCraneType ?? (object)DBNull.Value),
+                                new SqlParameter("@iCraneCount", crane.iCraneCount ?? (object)DBNull.Value),
+                                new SqlParameter("@dCraneAmount", crane.dCraneAmount ?? (object)DBNull.Value)
                             };
                             DBOperation.FillDataSet("dbo.USP_MobileApp_CraneDetailAccidentClaim_Save", craneParams);
                         }
+                    }
+
+                    // ✅ 2. Retrieve CraneDetails to include in response
+                    var craneFetchParams = new[]
+                    {
+                        new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId)
+                    };
+
+                    var craneDs = DBOperation.FillDataSet("dbo.USP_MobileApp_CraneDetailAccidentClaim_Get", craneFetchParams);
+
+                    if (craneDs != null && craneDs.Tables.Count > 0 && craneDs.Tables[0].Rows.Count > 0)
+                    {
+                        var craneList = new List<CraneDetails>();
+
+                        foreach (DataRow craneRow in craneDs.Tables[0].Rows)
+                        {
+                            craneList.Add(new CraneDetails
+                            {
+                                sCraneType = craneRow["sCraneType"]?.ToString(),
+                                iCraneCount = craneRow["iCraneCount"] != DBNull.Value ? Convert.ToInt32(craneRow["iCraneCount"]) : (int?)null,
+                                dCraneAmount = craneRow["dCraneAmount"] != DBNull.Value ? Convert.ToDecimal(craneRow["dCraneAmount"]) : (decimal?)null
+                            });
+                        }
+
+                        savedRecord.craneDetails = craneList;
                     }
 
                     // If there are images then save 
@@ -376,8 +436,8 @@ namespace Eunoia_UM_API.Controllers
 
                                 SqlParameter[] imgParam = new SqlParameter[]
                                 {
-                            new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
-                            new SqlParameter("@sImagePath", filePath)
+                                    new SqlParameter("@iFk_AccidentClaimLogId", accidentClaimLogId),
+                                    new SqlParameter("@sImagePath", filePath)
                                 };
                                 DBOperation.FillDataSet("dbo.USP_MobileApp_AccidentClaim_Attachment_Save", imgParam);
                             }
@@ -387,8 +447,7 @@ namespace Eunoia_UM_API.Controllers
                     api_Response.statusCode = 0;
                     api_Response.responseCode = 200;
                     api_Response.message = "Accident claim log saved successfully.";
-                    api_Response.data = new { AccidentClaimLogId = accidentClaimLogId };
-                    api_Response.data1 = null;
+                    api_Response.data = savedRecord;
                 }
                 else
                 {
@@ -396,7 +455,6 @@ namespace Eunoia_UM_API.Controllers
                     api_Response.responseCode = 500;
                     api_Response.message = "Failed to save accident claim log.";
                     api_Response.data = null;
-                    api_Response.data1 = null;
                 }
             }
             catch (Exception ex)
@@ -405,7 +463,6 @@ namespace Eunoia_UM_API.Controllers
                 api_Response.responseCode = 500;
                 api_Response.message = "Internal server error: " + ex.Message;
                 api_Response.data = null;
-                api_Response.data1 = null;
             }
 
             return api_Response;
