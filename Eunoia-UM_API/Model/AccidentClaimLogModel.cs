@@ -9,7 +9,7 @@ namespace Eunoia_UM_API.Model
         public string sVehicleNo { get; set; }
 
         [JsonProperty("accidentNo")]
-        public int? iAccidentNo { get; set; }
+        public string? iAccidentNo { get; set; }
 
         [JsonProperty("accidentDate")]
         public DateTime? dtDateOfAccident { get; set; }

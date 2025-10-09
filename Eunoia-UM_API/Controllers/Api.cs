@@ -304,8 +304,8 @@ namespace Eunoia_UM_API.Controllers
                 AccidentClaimLogModel input = null;
                 if (jsonData != null)
                 {
-                    input = JsonConvert.DeserializeObject<AccidentClaimLogModel>(jsonData);
-
+                    string innerJson = JsonConvert.DeserializeObject<string>(jsonData);
+                    input = JsonConvert.DeserializeObject<AccidentClaimLogModel>(innerJson);
                 }
                 var parameters = new[]
                 {
