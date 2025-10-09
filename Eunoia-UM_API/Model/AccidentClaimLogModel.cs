@@ -5,11 +5,8 @@ namespace Eunoia_UM_API.Model
 {
     public class AccidentClaimLogModel
     {
-        [JsonProperty("accidentLocation")]
-        public string? sCurrentLocation { get; set; }
-
         [JsonProperty("vehicleNo")]
-        public string? sVehicleNo { get; set; }
+        public string sVehicleNo { get; set; }
 
         [JsonProperty("accidentNo")]
         public int? iAccidentNo { get; set; }
@@ -17,25 +14,23 @@ namespace Eunoia_UM_API.Model
         [JsonProperty("accidentDate")]
         public DateTime? dtDateOfAccident { get; set; }
 
+        [JsonProperty("accidentLocation")]
+        public string sCurrentLocation { get; set; }
+
         [JsonProperty("cityName")]
-        public string? sCityName { get; set; }
+        public string sCityName { get; set; }
 
         [JsonProperty("tripId")]
-        public string? sTripId { get; set; }
+        public string sTripId { get; set; }
 
         [JsonProperty("driverName")]
-        public string? sDriverName { get; set; }
+        public string sDriverName { get; set; }
 
         [JsonProperty("driverId")]
-        public string? sDriverCode { get; set; }
+        public string sDriverCode { get; set; }
 
-        // Incoming JSON has int for personVisited, map here
         [JsonProperty("personVisited")]
         public int? iPersonVisitedId { get; set; }
-
-        // Your internal string, you can fill it from iPersonVisitedId if needed before SP call
-        [JsonIgnore]
-        public string? sPersonVisited { get; set; }
 
         [JsonProperty("settlementAmount")]
         public decimal? dSettlementAmount { get; set; }
@@ -43,22 +38,21 @@ namespace Eunoia_UM_API.Model
         [JsonProperty("debitToDriverAmount")]
         public decimal? dDebitToDriverAmount { get; set; }
 
+        [JsonProperty("craneDetails")]
+        public List<CraneDetails> CraneDetails { get; set; }
+
         [JsonProperty("remark")]
-        public string? sAccidentRemark { get; set; }
-
-        [JsonProperty("onSpotSignature")]
-        public string? sOnSpotPersonSignature { get; set; }
-
-        [JsonProperty("spotSignature")]
-        public string? sSpotPersonSignature { get; set; }
+        public string sAccidentRemark { get; set; }
 
         [JsonProperty("confirmation")]
         public bool? bIsConfirmed { get; set; }
 
-        [Required]
-        [JsonProperty("craneDetails")]
-        public List<CraneDetails> CraneDetails { get; set; }
+        [JsonProperty("onSpotSignature")]
+        public string sOnSpotPersonSignature { get; set; }
 
+        [JsonProperty("spotSignature")]
+        public string sSpotPersonSignature { get; set; }
+        
         // Optional additional properties
         public string? sMobileNo { get; set; }
         public string? sLicenseNo { get; set; }
