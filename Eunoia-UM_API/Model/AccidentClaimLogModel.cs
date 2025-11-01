@@ -52,7 +52,9 @@ namespace Eunoia_UM_API.Model
 
         [JsonProperty("spotSignature")]
         public string sSpotPersonSignature { get; set; }
-        
+        [JsonProperty("transactionType")]
+        public int? itransactionType { get; set; }
+
         // Optional additional properties
         public string? sMobileNo { get; set; }
         public string? sLicenseNo { get; set; }

@@ -329,7 +329,9 @@ namespace Eunoia_UM_API.Controllers
                     new SqlParameter("@sAccidentRemark", input.sAccidentRemark ?? (object)DBNull.Value),
                     new SqlParameter("@sOnSpotPersonSignature", input.sOnSpotPersonSignature ?? (object)DBNull.Value),
                     new SqlParameter("@sSpotPersonSignature", input.sSpotPersonSignature ?? (object)DBNull.Value),
-                    new SqlParameter("@bIsConfirmed", input.bIsConfirmed ?? false)
+                    new SqlParameter("@bIsConfirmed", input.bIsConfirmed ?? false),
+                    new SqlParameter("@iTransactionType", input.itransactionType ?? (object)DBNull.Value)
+
                 };
 
                 var ds = DBOperation.FillDataSet("dbo.USP_MobileApp_AccidentClaim_Save", parameters);
