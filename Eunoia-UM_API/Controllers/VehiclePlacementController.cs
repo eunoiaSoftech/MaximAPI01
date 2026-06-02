@@ -105,11 +105,16 @@ namespace Eunoia_UM_API.Controllers
 
         [HttpGet]
         [Route("GetVehList")]
-        public Api_CommonResponse GetVehList()
+        public Api_CommonResponse GetVehList(int? BranchId = 0, int? YearId = 0, int? UserId = 0)
         {
             try
             {
-                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_MST_Veh_GetForDDL]");
+                SqlParameter[] param = new SqlParameter[3];
+
+                param[0] = new SqlParameter("@BranchId", BranchId);
+                param[1] = new SqlParameter("@YearId", YearId);
+                param[2] = new SqlParameter("@UserId", UserId);
+                DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_MST_Veh_GetForDDL]", param);
                 if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
                 {
                     api_Response.message = "Route List";
@@ -198,7 +203,7 @@ namespace Eunoia_UM_API.Controllers
             try
             {
                 int iPk_VehplcId = 0;
-                SqlParameter[] param = new SqlParameter[29];
+                SqlParameter[] param = new SqlParameter[41];
 
                 param[0] = new SqlParameter("@iFk_VehclId", veh.iFk_VehclId);
                 param[1] = new SqlParameter("@iMovemntTyp", veh.iMovemntTyp);
@@ -229,12 +234,24 @@ namespace Eunoia_UM_API.Controllers
                 param[26] = new SqlParameter("@iIsEmptyRtrn", veh.iIsEmptyRtrn);
                 param[27] = new SqlParameter("@iPlacemntTyp", veh.iPlacemntTyp);
                 param[28] = new SqlParameter("@iFk_CstmrId", veh.iFk_CstmrId);
+                param[29] = new SqlParameter("@sDrvrNm", veh.sDrvrNm);
+                param[30] = new SqlParameter("@sCntctNo", veh.sCntctNo);
+                param[31] = new SqlParameter("@iFk_LocationId", veh.iFk_LocationId);
+                param[32] = new SqlParameter("@iDeviceTye", veh.iDeviceTye);
+                param[33] = new SqlParameter("@sDeviceNo", veh.sDeviceNo);
+                param[34] = new SqlParameter("@iFittedBy", veh.iFittedBy);
+                param[35] = new SqlParameter("@sLcsncNo", veh.sLcsncNo);
+                param[36] = new SqlParameter("@dtLicExpDt", veh.dtLicExpDt);
+                param[37] = new SqlParameter("@sRemarks", veh.sRemarks);
+                param[38] = new SqlParameter("@iFk_MktBrokerId", veh.iFk_MktBrokerId);
+                param[39] = new SqlParameter("@iPlacedBy", veh.iPlacedBy);
+                param[40] = new SqlParameter("@iPlcmntNatureTyp", veh.iPlcmntNatureTyp);
 
                 DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_VEHPLCMNTMST_Save]", param);
                 if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
                 {
                     iPk_VehplcId = Convert.ToInt32(ds.Tables[0].Rows[0]["iPk_VehplcId"]);
-                    if (veh.tools != null && veh.tools.Count > 0)
+                    if (veh.tools != null && veh.tools.Count > 0 && iPk_VehplcId > 0)
                     {
                         foreach (var item in veh.tools)
                         {
@@ -268,14 +285,19 @@ namespace Eunoia_UM_API.Controllers
             var status = "";
             try
             {
-                SqlParameter[] param = new SqlParameter[7];
+                SqlParameter[] param = new SqlParameter[12];
                 param[0] = new SqlParameter("@iFk_VehplcId", id);
                 param[1] = new SqlParameter("@iFk_CustEnum", tools.iFk_CustEnum);
                 param[2] = new SqlParameter("@iFk_ToolId", tools.iFk_ToolId);
                 param[3] = new SqlParameter("@dPresentQty", tools.dPresentQty);
                 param[4] = new SqlParameter("@dGivenQty", tools.dGivenQty);
-                param[5] = new SqlParameter("@iIsReturn", tools.iIsReturn);
-                param[6] = new SqlParameter("@sRemark", tools.sRemark);
+                param[5] = new SqlParameter("@iFk_BrndId", tools.iFk_BrndId);
+                param[6] = new SqlParameter("@dRtrnQty", tools.dRtrnQty);
+                param[7] = new SqlParameter("@dScrpQty", tools.dScrpQty);
+                param[8] = new SqlParameter("@dMsngQty", tools.dMsngQty);
+                param[9] = new SqlParameter("@iFk_MsngRsn", tools.iFk_MsngRsn);
+                param[10] = new SqlParameter("@dAvailblQty", tools.dAvailblQty);
+                param[11] = new SqlParameter("@dClsngQty", tools.dClsngQty);
 
                 DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_VEHPLCMNTTOOLDET_Save]", param);
                 if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
@@ -301,14 +323,13 @@ namespace Eunoia_UM_API.Controllers
         {
             try
             {
-                SqlParameter[] param = new SqlParameter[3];
+                SqlParameter[] param = new SqlParameter[32];
                 param[0] = new SqlParameter("@iPk_VehplcId", veh.iPk_VehplcId);
                 param[1] = new SqlParameter("@sEntryNo", veh.sEntryNo);
+
                 param[2] = new SqlParameter("@iPlacemntTyp", veh.iPlacemntTyp);
-                param[2] = new SqlParameter("@iFk_CstmrId", veh.iFk_CstmrId);
-                /*param[2] = new SqlParameter("@dtEntryDate", veh.dtEntryDate);
                 param[3] = new SqlParameter("@iFk_VehclId", veh.iFk_VehclId);
-                param[4] = new SqlParameter("@dtReleaseDt", veh.dtReleaseDt);
+                param[4] = new SqlParameter("@iFk_CstmrId", veh.iFk_CstmrId);
                 param[5] = new SqlParameter("@iMovemntTyp", veh.iMovemntTyp);
                 param[6] = new SqlParameter("@iFk_FrmStationId", veh.iFk_FrmStationId);
                 param[7] = new SqlParameter("@iFk_ToStationId", veh.iFk_ToStationId);
@@ -322,13 +343,20 @@ namespace Eunoia_UM_API.Controllers
                 param[15] = new SqlParameter("@iCrtdBy", veh.iCrtdBy);
                 param[16] = new SqlParameter("@dtCrdtOn", veh.dtCrdtOn);
                 param[17] = new SqlParameter("@iStatus", veh.iStatus);
-                param[18] = new SqlParameter("@iMaxNo", veh.iMaxNo);
-                param[19] = new SqlParameter("@iVoucherStyle", veh.iVoucherStyle);
+                param[18] = new SqlParameter("@sDrvrNm", veh.sDrvrNm);
+                param[19] = new SqlParameter("@sCntctNo", veh.sCntctNo);
                 param[20] = new SqlParameter("@sIpAddress", veh.sIpAddress);
                 param[21] = new SqlParameter("@sBrowsername", veh.sBrowsername);
                 param[22] = new SqlParameter("@sLongitude", veh.sLongitude);
-                param[23] = new SqlParameter("@sLatitude", veh.sLatitude);*/
-
+                param[23] = new SqlParameter("@sLatitude", veh.sLatitude);
+                param[24] = new SqlParameter("@sLcsncNo", veh.sLcsncNo);
+                param[25] = new SqlParameter("@dtLicExpDt", veh.dtLicExpDt);
+                param[26] = new SqlParameter("@iVehicleType", veh.iVehicleType);
+                param[27] = new SqlParameter("@sRemarks", veh.sRemarks);
+                param[28] = new SqlParameter("@dtReleaseDt", veh.dtReleaseDt);
+                param[29] = new SqlParameter("@iPlacedBy", veh.iPlacedBy);
+                param[30] = new SqlParameter("@iFk_MktBrokerId", veh.iFk_MktBrokerId);
+                param[31] = new SqlParameter("@iPlcmntNatureTyp", veh.iPlcmntNatureTyp);
 
                 DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_VEHPLCMNTMST_Update]", param);
                 if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)
@@ -366,15 +394,19 @@ namespace Eunoia_UM_API.Controllers
             var status = "";
             try
             {
-                SqlParameter[] param = new SqlParameter[8];
+                SqlParameter[] param = new SqlParameter[12];
                 param[0] = new SqlParameter("@iPk_PlctoolId", tools.iPk_PlctoolId);
                 param[1] = new SqlParameter("@iFk_VehplcId", tools.iFk_VehplcId);
-                param[2] = new SqlParameter("@iFk_CustEnum", tools.iFk_CustEnum);
-                param[3] = new SqlParameter("@iFk_ToolId", tools.iFk_ToolId);
+                param[2] = new SqlParameter("@iFk_ToolId", tools.iFk_ToolId);
+                param[3] = new SqlParameter("@dAvailblQty", tools.dAvailblQty);
                 param[4] = new SqlParameter("@dPresentQty", tools.dPresentQty);
-                param[5] = new SqlParameter("@dGivenQty", tools.dGivenQty);
-                param[6] = new SqlParameter("@iIsReturn", tools.iIsReturn);
-                param[7] = new SqlParameter("@sRemark", tools.sRemark);
+                param[5] = new SqlParameter("@iFk_BrndId", tools.iFk_BrndId);
+                param[6] = new SqlParameter("@dGivenQty", tools.dGivenQty);
+                param[7] = new SqlParameter("@dRtrnQty", tools.dRtrnQty);
+                param[8] = new SqlParameter("@dScrpQty", tools.dScrpQty);
+                param[9] = new SqlParameter("@dMsngQty", tools.dMsngQty);
+                param[10] = new SqlParameter("@dClsngQty", tools.dClsngQty);
+                param[11] = new SqlParameter("@iFk_MsngRsn", tools.iFk_MsngRsn);
 
                 DataSet ds = DBOperation.FillDataSet("[dbo].[USP_Master_VEHPLCMNTTOOLDET_Update]", param);
                 if (ds != null && ds.Tables != null && ds.Tables[0].Rows.Count > 0)

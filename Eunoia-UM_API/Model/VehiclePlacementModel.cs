@@ -1,21 +1,12 @@
 ﻿namespace Eunoia_UM.Models
 {
-    public class TrVehiclePlacementModel
-    {
-        public int iPk_PlctoolId { get; set; }
-        public int iFk_VehplcId { get; set; }
-        public int iFk_CustEnum { get; set; }
-        public int iFk_ToolId { get; set; }
-        public decimal dPresentQty { get; set; }
-        public decimal dGivenQty { get; set; }
-        public int iIsReturn { get; set; }
-        public string sRemark { get; set; }
-        public string sToolNme { get; set; }
-    }
 
     public class VehiclePlacementModel
     {
         public int iPk_VehplcId { get; set; }
+        public int iFk_MktBrokerId { get; set; }
+        public int iPlacedBy { get; set; }
+        public int iFk_TranporterId { get; set; }
         public int iFk_TrailerId { get; set; }
         public int iFk_DriverId { get; set; }
         public int iFk_BrnchId { get; set; }
@@ -34,6 +25,8 @@
         public decimal dTransitTime { get; set; }
         public decimal? dMinGuarantee { get; set; }
         public decimal? dBookingRate { get; set; }
+        public string? sRemarks { get; set; }
+
         public string? sEntryNo { get; set; }
         public string? dtEntryDate { get; set; }
         public string? dtReleaseDt { get; set; }
@@ -45,7 +38,16 @@
         public int? Pk_MaxTrpDetId { get; set; }
         public int? iIsEmptyRtrn { get; set; }
         public int? iPlacemntTyp { get; set; }
+        public int? iPlcmntNatureTyp { get; set; }
         public int? iFk_CstmrId { get; set; }
+        public string? sDrvrNm { get; set; }
+        public string? sCntctNo { get; set; }
+        public int? iFk_LocationId { get; set; }
+        public int? iDeviceTye { get; set; }
+        public string? sDeviceNo { get; set; }
+        public string? sLcsncNo { get; set; }
+        public string? dtLicExpDt { get; set; }
+        public int? iFittedBy { get; set; }
         public List<VehiclePlacementTools>? tools { get; set; }
     }
 
@@ -59,6 +61,15 @@
         public decimal dGivenQty { get; set; }
         public int iIsReturn { get; set; }
         public string? sRemark { get; set; }
+
+
+        public decimal? dRtrnQty { get; set; }
+        public decimal? dScrpQty { get; set; }
+        public decimal? dMsngQty { get; set; }
+        public decimal? dClsngQty { get; set; }
+        public int iFk_MsngRsn { get; set; }
+        public int iFk_BrndId { get; set; }
+        public decimal? dAvailblQty { get; set; }
     }
 
     public class RouteCityForPlacement
